@@ -3,6 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    DATABASE_URL: str
     DB_HOST: str
     DB_PORT: int 
     DB_NAME: str 
@@ -28,9 +29,12 @@ class Settings(BaseSettings):
 settings = Settings()
 
 
-def get_db_url():
+"""def get_db_url():
     return (f"postgresql+asyncpg://{settings.DB_USER}:{settings.DB_PASSWORD}@"
-            f"{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}")
+            f"{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}")"""
+
+def get_db_url():
+    return settings.DATABASE_URL
 
 
 def get_auth_data():

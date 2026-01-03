@@ -6,7 +6,7 @@ from app.models.models import Users, Users_Stats, PasswordResetCode
 from app.schemas.user import UserRegister, UserReturn, UserLogin
 from app.schemas.email import CodeUpdateRequest, EmailSchema, EmailRequest, CodeRequest
 from app.core.security import get_user_from_token, get_password_hash, generate_reset_code
-from app.internal.mail import create_message, mail
+from app.internal.mail import create_message, get_mail
 #from app.internal.mail import send_email  # твой метод отправки
 from app.utils.uow import IUnitOfWork
 from app.core.exception import *
@@ -94,6 +94,7 @@ class AuthService():
                 body=html
             )
 
+            mail = get_mail()
             await mail.send_message(message)
 
             return {"message": "Сообщение с кодом отправлено на вашу почту!"}

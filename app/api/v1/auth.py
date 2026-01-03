@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.schemas.user import UserLogin, UserReturn, UserRegister, UserChangeProfile
 from app.schemas.email import EmailSchema, EmailRequest, CodeRequest, CodeUpdateRequest
-from app.internal.mail import create_message, mail
+from app.internal.mail import create_message, get_mail
 from app.services.auth_service import AuthService
 from app.utils.dependencies import get_auth_service
 from app.core.exception import (
@@ -109,7 +109,7 @@ async def send_mail(emails: EmailSchema):
         subject="Welcome",
         body=html
     )
-
+    mail = get_mail()
     await mail.send_message(message)
 
     return {"message": "Email send succesfully"}
