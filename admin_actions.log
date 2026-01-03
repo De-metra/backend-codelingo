@@ -1,0 +1,54 @@
+2025-11-03 14:25:51 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Users_Levels - ID: 3 - Details: Form data: {'user': '3', 'level': '1', 'is_complete': False}
+2025-11-03 14:37:36 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Users - ID: 8 - Details: Form data: {'username': 'testuser1', 'picture_link': '', 'email': 'testuser@localhost.com'}
+2025-11-03 14:38:29 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: Users - ID: 8
+2025-11-03 17:33:23 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Users_Levels - ID: 1 - Details: Form data: {'user': '1', 'level': '1', 'is_complete': False}
+2025-11-03 17:33:33 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: Users_Stats - ID: 7
+2025-11-03 17:35:53 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Users_Levels - ID: 1 - Details: Form data: {'user': '1', 'level': '1', 'is_complete': False}
+2025-11-03 17:42:04 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Users_Levels - ID: 1 - Details: Form data: {'user': '1', 'level': '1', 'is_complete': False}
+2025-11-03 17:42:19 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: Users_Stats - ID: 8
+2025-11-03 17:48:02 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: Users_Stats - ID: 9
+2025-11-03 17:48:06 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Users_Levels - ID: 1 - Details: Form data: {'user': '1', 'level': '1', 'is_complete': False}
+2025-11-03 17:53:52 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Users_Stats - ID: 10 - Details: Form data: {'user': '1', 'last_activity': None, 'streak': 0, 'total_xp': 0}
+2025-11-03 17:54:01 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Users_Levels - ID: 1 - Details: Form data: {'user': '1', 'level': '1', 'is_complete': False}
+2025-11-03 18:26:01 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tasks - ID: 2 - Details: Form data: {'type_rel': '2', 'title': 'Заполните пропуски', 'description': 'Заполните пропуски в коде соответствующими ключевыми словами', 'hint': 'Вспомни ключевые слова let, const, var'}
+2025-11-09 17:28:33 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Courses - ID: 1 - Details: Form data: {'title': 'JavaScript', 'description': ''}
+2025-11-09 17:28:58 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Levels - ID: 1 - Details: Form data: {'theory': '1', 'course': '1', 'title': 'Знакомство с JavaScript', 'description': '', 'xp': 100}
+2025-11-09 17:29:04 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Levels - ID: 2 - Details: Form data: {'theory': '2', 'course': '1', 'title': 'Синтаксис JavaScript', 'description': 'В этом уроке мы начнём знакомиться с JavaScript поближе. Узнаем каки бывают переменные и рассмотрим основные типы данных.', 'xp': 110}
+2025-11-09 17:29:57 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Users_Courses - ID: 1 - Details: Form data: {'user': '1', 'course': '1', 'progress': 2, 'is_complete': False}
+2025-11-09 17:30:11 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Users_Courses - ID: 2 - Details: Form data: {'user': '3', 'course': '1', 'progress': 0, 'is_complete': False}
+2025-11-09 18:21:47 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Users_Courses - ID: 1 - Details: Form data: {'user': '1', 'course': '1', 'progress': 0, 'is_complete': False}
+2025-11-09 18:22:47 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: Users_Courses - ID: 2
+-------------------------------------------------------------------------------------------------------------------------------------------------2025-12-11 18:53:24 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: Users_Stats - ID: 12
+2025-12-11 18:53:39 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: Users - ID: 11
+2025-12-11 18:59:33 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: Users - ID: 12
+2025-12-11 19:33:41 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: Users - ID: 13
+2025-12-17 16:49:31 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: Users_Courses - ID: 1
+2025-12-18 21:23:50 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Users_Levels - ID: 1 - Details: Form data: {'user': '1', 'level': '1', 'is_complete': False}
+2025-12-19 15:23:15 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tasks - ID: 3 - Details: Form data: {'type_rel': '2', 'title': 'Напишите программу', 'description': 'Напишите программу выводящую самую любимую фразу всех программистов "Hello, World!"', 'hint': ''}
+2025-12-19 15:50:52 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Data_Types - ID: 1 - Details: Form data: {'name': 'int'}
+2025-12-19 15:50:56 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Data_Types - ID: 2 - Details: Form data: {'name': 'str'}
+2025-12-19 15:51:11 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Data_Types - ID: 3 - Details: Form data: {'name': 'list[int]'}
+2025-12-19 15:51:16 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Data_Types - ID: 4 - Details: Form data: {'name': 'bool'}
+2025-12-19 15:51:45 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tasks - ID: 3 - Details: Form data: {'type_rel': '3', 'title': 'Напишите программу', 'description': 'Напишите программу выводящую самую любимую фразу всех программистов "Hello, World!"', 'hint': ''}
+2025-12-19 15:52:40 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tasks - ID: 4 - Details: Form data: {'type_rel': '3', 'title': 'Напишите программу', 'description': 'Напишите функцию solution, которая возвращает сумму двух чисел', 'hint': ''}
+2025-12-19 15:53:24 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tests - ID: 1 - Details: Form data: {'task': '1', 'input_type': '3', 'output_type': '1', 'input_data': '[1, 2]', 'expected_output_data': '3'}
+2025-12-19 15:53:30 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tests - ID: 1 - Details: Form data: {'task': '4', 'input_type': '3', 'output_type': '1', 'input_data': '[1, 2]', 'expected_output_data': '3'}
+2025-12-19 15:53:53 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tests - ID: 2 - Details: Form data: {'task': '4', 'input_type': '3', 'output_type': '1', 'input_data': '[0, 0]', 'expected_output_data': '0'}
+2025-12-19 16:38:02 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tasks - ID: 5 - Details: Form data: {'type_rel': '3', 'title': 'Максимум из двух чисел', 'description': 'Напиши функцию, которая принимает два целых числа и возвращает большее из них. Если числа равны — верни любое из них.', 'hint': ''}
+2025-12-19 16:39:18 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tests - ID: 3 - Details: Form data: {'task': '5', 'input_type': '3', 'output_type': '1', 'input_data': '[3, 7]', 'expected_output_data': '7'}
+2025-12-19 16:40:01 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tests - ID: 4 - Details: Form data: {'task': '5', 'input_type': '3', 'output_type': '1', 'input_data': '[4 ,4]', 'expected_output_data': '4'}
+2025-12-19 16:40:54 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tasks - ID: 6 - Details: Form data: {'type_rel': '3', 'title': 'Подсчёт длины строки', 'description': 'Напиши функцию, которая принимает строку и возвращает количество символов в ней.', 'hint': ''}
+2025-12-19 16:42:00 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tests - ID: 5 - Details: Form data: {'task': '6', 'input_type': '2', 'output_type': '1', 'input_data': '"Python"', 'expected_output_data': '6'}
+2025-12-19 16:42:28 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tests - ID: 6 - Details: Form data: {'task': '6', 'input_type': '2', 'output_type': '1', 'input_data': '""', 'expected_output_data': '0'}
+2025-12-20 17:11:56 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tasks - ID: 4 - Details: Form data: {'type_rel': '3', 'title': 'Напишите программу', 'description': 'Напишите функцию sum_numbers, которая возвращает сумму двух чисел', 'hint': '', 'template': 'def sum_numbers(a, b):\r\n    # напишите код здесь', 'func_name': 'sum_numbers'}
+2025-12-20 17:12:30 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tasks - ID: 5 - Details: Form data: {'type_rel': '3', 'title': 'Максимум из двух чисел', 'description': 'Напиши функцию max_number, которая принимает два целых числа и возвращает большее из них. Если числа равны — верни любое из них.', 'hint': '', 'template': 'def max_number(a, b):\r\n    # напишите код здесь', 'func_name': ''}
+2025-12-20 17:15:19 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tasks - ID: 6 - Details: Form data: {'type_rel': '3', 'title': 'Подсчёт длины строки', 'description': 'Напиши функцию, которая принимает строку и возвращает количество символов в ней.', 'hint': '', 'template': 'def text_length(text):\r\n    # напишите код здесь', 'func_name': 'text_length'}
+2025-12-20 17:19:56 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tasks - ID: 5 - Details: Form data: {'type_rel': '3', 'title': 'Максимум из двух чисел', 'description': 'Напиши функцию max_number, которая принимает два целых числа и возвращает большее из них. Если числа равны — верни любое из них.', 'hint': '', 'template': 'def max_number(a, b):\r\n    # напишите код здесь', 'func_name': 'max_number'}
+2025-12-26 16:25:59 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Achievments - ID: 1 - Details: Form data: {'code': 'FIRST_LEVEL', 'title': 'Заверши первый уровень', 'description': '', 'icon': ''}
+2025-12-26 16:26:35 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Achievments - ID: 2 - Details: Form data: {'code': 'COMPLETE_COURSE', 'title': 'Заверши курс', 'description': '', 'icon': ''}
+2025-12-26 16:27:08 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Achievments - ID: 3 - Details: Form data: {'code': 'XP_100', 'title': 'Первая 100', 'description': 'Набери 100 xp', 'icon': ''}
+2025-12-26 16:27:50 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Achievments - ID: 4 - Details: Form data: {'code': 'STREAK_3', 'title': 'Хорошая привычка', 'description': 'Заходи 3 дня подряд', 'icon': ''}
+2025-12-26 16:28:24 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Achievments - ID: 5 - Details: Form data: {'code': 'TASKS_5', 'title': 'Реши 5 задач', 'description': '', 'icon': ''}
+2025-12-26 16:29:32 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Achievments - ID: 6 - Details: Form data: {'code': 'PERFECT_LEVEL', 'title': 'Без единой ошибки', 'description': 'Заверши уровень ни разу не ошибившись', 'icon': ''}
+2025-12-26 16:29:57 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Achievments - ID: 1 - Details: Form data: {'code': 'FIRST_LEVEL', 'title': 'Начало нового', 'description': 'Заверши первый уровень курса', 'icon': ''}
+2026-01-03 15:37:42 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: PasswordResetCode - ID: 5

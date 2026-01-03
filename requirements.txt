@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+pydantic
+alembic
+asyncpg
+environs
+psycopg2-binary
+databases[asyncpg]
+passlib[bcrypt]
+pydantic[email]
+python-jose[cryptography]
+pydantic-settings
+redis
+sqladmin
+itsdangerous
+fastapi-mail
