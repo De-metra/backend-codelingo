@@ -9,6 +9,12 @@ from app.core.config import get_db_url
 from app.models import models
 from app.database.db import Base
 
+DATABASE_URL = get_db_url()
+
+if DATABASE_URL.startswith("postgresql+asyncpg://"):
+    sync_url = DATABASE_URL.replace("postgresql+asyncpg://", "postgresql://")
+else:
+    sync_url = DATABASE_URL
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -18,7 +24,7 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-config.set_main_option("sqlalchemy.url", get_db_url())
+config.set_main_option("sqlalchemy.url", sync_url)
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
