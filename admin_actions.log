@@ -52,3 +52,5 @@
 2025-12-26 16:29:32 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Achievments - ID: 6 - Details: Form data: {'code': 'PERFECT_LEVEL', 'title': 'Без единой ошибки', 'description': 'Заверши уровень ни разу не ошибившись', 'icon': ''}
 2025-12-26 16:29:57 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Achievments - ID: 1 - Details: Form data: {'code': 'FIRST_LEVEL', 'title': 'Начало нового', 'description': 'Заверши первый уровень курса', 'icon': ''}
 2026-01-03 15:37:42 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: PasswordResetCode - ID: 5
+2026-01-04 18:48:42 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tasks - ID: 1 - Details: Form data: {'type_rel': '1', 'title': 'Выберите правильный ответ', 'description': 'Отметьте ВСЕ правдивые факты о JavaScript', 'hint': '', 'template': '', 'func_name': ''}
+2026-01-04 18:49:17 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tasks - ID: 2 - Details: Form data: {'type_rel': '2', 'title': 'Заполните пропуски', 'description': 'Заполните пропуски в коде соответствующими ключевыми словами', 'hint': 'Вспомни ключевые слова let, const, var', 'template': '', 'func_name': ''}

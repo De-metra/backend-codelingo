@@ -55,7 +55,10 @@ async def forgot_password(
     try:
         return await auth_service.forgot_password(user_mail=user_mail)
     except UserNotFoundError:
-        raise HTTPException("Учетная запись не зарегистрирована")
+        raise HTTPException(
+            status_code=404,
+            detail="Учетная запись не зарегистрирована"
+        )
     except AppError as err:
         detail = str(err) or "Bad request"
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
