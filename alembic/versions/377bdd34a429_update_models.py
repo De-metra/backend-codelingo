@@ -38,7 +38,7 @@ def upgrade() -> None:
                existing_type=sa.VARCHAR(),
                nullable=True)
     op.add_column('users', sa.Column('picture_link', sa.String(), nullable=True))
-    op.add_column('users_stats', sa.Column('last_activity', sa.DateTime(timezone=True), nullable=False))
+    op.add_column('users_stats', sa.Column('last_activity', sa.DateTime(timezone=True), nullable=True))
     op.add_column('users_stats', sa.Column('streak', sa.Integer(), nullable=False))
     op.add_column('users_stats', sa.Column('total_xp', sa.Integer(), nullable=False))
     # ### end Alembic commands ###
