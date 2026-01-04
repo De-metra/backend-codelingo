@@ -20,7 +20,7 @@ class LevelRepository(Repository):
     async def get_by_id(self, id: int):
         '''Получение уровня по id'''
         stmt = await self.session.execute(select(Levels).where(Levels.id == id))
-        return stmt.scalar_one()
+        return stmt.scalar_one_or_none()
        
 
     async def get_level_theory(self, level_id: int):

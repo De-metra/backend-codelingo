@@ -47,7 +47,7 @@ async def get_me(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
     
     
-@router.post("/change-me")      
+@router.post("/change-me")  #patch?    
 async def change_profile(
     users_data : UserChangeProfile, 
     current_user: str = Depends(get_user_from_token), 
@@ -67,7 +67,7 @@ async def change_profile(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
 
 
-@router.get("/achievments")
+@router.get("/achievments") #дописать
 async def get_my_achievments(
     current_user: str = Depends(get_user_from_token),
     user_service: UserService = Depends(get_user_service)

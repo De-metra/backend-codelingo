@@ -24,6 +24,6 @@ class CourseRepository(Repository):
             .options(selectinload(Courses.levels))
             .where(Courses.id == course_id)
             )
-        return stmt.scalars().first()
+        return stmt.scalar_one_or_none()
     
     

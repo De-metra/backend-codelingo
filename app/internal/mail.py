@@ -4,8 +4,6 @@ from app.core.config import settings
 from pathlib import Path
 
 
-BASE_DIR = Path(__file__).resolve().parent
-
 def get_mail_config() -> ConnectionConfig:
     return ConnectionConfig(
         MAIL_USERNAME=settings.MAIL_USERNAME,
@@ -16,8 +14,7 @@ def get_mail_config() -> ConnectionConfig:
         MAIL_FROM_NAME=settings.MAIL_FROM_NAME,
         MAIL_STARTTLS=settings.MAIL_STARTTLS,
         MAIL_SSL_TLS=settings.MAIL_SSL_TLS,
-        USE_CREDENTIALS=True,
-        TEMPLATE_FOLDER=Path(BASE_DIR, 'templates')
+        USE_CREDENTIALS=True
     )
 
 def get_mail() -> FastMail:

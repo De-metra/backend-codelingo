@@ -51,6 +51,6 @@ class UserChangePassword(BaseModel):
 class Stats(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    last_activity: datetime
+    last_activity: Optional[datetime] = None
     streak: int
     total_xp: int
