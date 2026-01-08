@@ -29,6 +29,9 @@ class Achievments(Base):
         cascade="all, delete-orphan",
         passive_deletes=True
         )
+    
+    def __str__(self):
+        return self.title 
 
 class Courses(Base):
     id: Mapped[int_pk]

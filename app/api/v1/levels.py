@@ -90,6 +90,19 @@ async def complete_level(
     current_user: str = Depends(get_user_from_token), 
     level_service: LevelService = Depends(get_level_service)
 ):
+    """
+    Docstring for complete_level
+    
+    :param level_id: Description
+    :type level_id: int
+    :param current_user: Description
+    :type current_user: str
+    :param level_service: Description
+    :type level_service: LevelService
+
+    Начисляется xp, уровень помечается завершенным, обновляется last_activity, streak,
+    прогресс курса, проверка на ачивки
+    """
     try:
         return await level_service.complete_level(level_id=level_id, user_id=int(current_user))
     except UserNotFoundError:

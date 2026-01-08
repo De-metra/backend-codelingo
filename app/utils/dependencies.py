@@ -18,11 +18,8 @@ async def get_achievment_service(uow: IUnitOfWork = Depends(UnitOfWork)) -> Achi
 async def get_auth_service(uow: IUnitOfWork = Depends(UnitOfWork)) -> AuthService:
     return AuthService(uow)
 
-async def get_level_service(
-        uow: IUnitOfWork = Depends(UnitOfWork),
-        ach_service: AchievmentsService = Depends(get_achievment_service)
-) -> LevelService:
-    return LevelService(uow, ach_service)
+async def get_level_service(uow: IUnitOfWork = Depends(UnitOfWork)) -> LevelService:
+    return LevelService(uow)
 
 async def get_course_service(uow: IUnitOfWork = Depends(UnitOfWork)) -> CourseService:
     return CourseService(uow)

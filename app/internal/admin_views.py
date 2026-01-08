@@ -142,7 +142,7 @@ class CourseAdmin(LoggingMixin, ModelView, model=Courses):
     column_sortable_list = [Courses.id]
 
 class AchievmentsAdmin(LoggingMixin, ModelView, model=Achievments):
-    column_list = "__all__"
+    column_list = [Achievments.id, Achievments.code, Achievments.title, Achievments.description, Achievments.icon, Achievments.updated_at]
     name = "Achievment"
     name_plural = "Achievments"
 

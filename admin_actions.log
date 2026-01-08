@@ -54,3 +54,11 @@
 2026-01-03 15:37:42 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: PasswordResetCode - ID: 5
 2026-01-04 18:48:42 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tasks - ID: 1 - Details: Form data: {'type_rel': '1', 'title': 'Выберите правильный ответ', 'description': 'Отметьте ВСЕ правдивые факты о JavaScript', 'hint': '', 'template': '', 'func_name': ''}
 2026-01-04 18:49:17 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tasks - ID: 2 - Details: Form data: {'type_rel': '2', 'title': 'Заполните пропуски', 'description': 'Заполните пропуски в коде соответствующими ключевыми словами', 'hint': 'Вспомни ключевые слова let, const, var', 'template': '', 'func_name': ''}
+2026-01-08 14:07:09 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Users_Levels - ID: 4 - Details: Form data: {'user': '9', 'level': '1', 'is_complete': False}
+2026-01-08 14:07:21 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Users_Stats - ID: 11 - Details: Form data: {'user': '9', 'last_activity': datetime.datetime(2026, 1, 8, 13, 57, 40), 'streak': 1, 'total_xp': 50}
+2026-01-08 14:07:35 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Users_Stats - ID: 11 - Details: Form data: {'user': '9', 'last_activity': datetime.datetime(2026, 1, 8, 13, 57, 40), 'streak': 1, 'total_xp': 50}
+2026-01-08 14:21:08 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Users_Levels - ID: 4 - Details: Form data: {'user': '9', 'level': '1', 'is_complete': False}
+2026-01-08 15:54:40 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: Users_Achievments - ID: 1
+2026-01-08 15:54:40 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: Users_Achievments - ID: 2
+2026-01-08 15:59:07 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: Users_Achievments - ID: 3
+2026-01-08 15:59:07 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: Users_Achievments - ID: 4

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqladmin import Admin
 
-from app.api.v1 import auth, levels, tasks, courses, users
+from app.api.v1 import auth, levels, tasks, courses, users, achievments
 from app.core.config import get_admin_key
 from app.database.db import engine
 from app.internal.admin_views import (
@@ -52,6 +52,7 @@ app.include_router(levels.router, prefix="/api/levels", tags=["levels"])
 app.include_router(tasks.router, prefix="/api/tasks", tags=["tasks"])
 app.include_router(courses.router, prefix="/api/courses", tags=["courses"])
 app.include_router(users.router, prefix="/api/users", tags=["users"])
+app.include_router(achievments.router, prefix="/api/achievments", tags=["achievments"])
 
 @app.get("/")
 async def get_root():

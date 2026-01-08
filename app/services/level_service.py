@@ -1,19 +1,16 @@
 from datetime import datetime, timedelta
-from fastapi import HTTPException
 
-from app.core.security import verify_password, get_password_hash, create_jwt_token
-from app.models.models import Users, Users_Stats, PasswordResetCode, Users_Levels, Users_Courses
 from app.schemas.level import LevelBaseReturn, LevelStatusReturn, LevelReturn, TheoryReturn
-from app.schemas.email import CodeUpdateRequest
 from app.utils.uow import IUnitOfWork
-from app.services.achievment_service import AchievmentsService
-from app.core.exception import *
+from app.core.exception import (
+    LevelAlreadyCompletedError, LevelNotFoundError,
+    TheoryNotFoundError, XpNotFoundError, UserNotFoundError
+)
 
 
 class LevelService():
-    def __init__(self, uow: IUnitOfWork, achivment_service: AchievmentsService):
+    def __init__(self, uow: IUnitOfWork):
         self.uow = uow
-        self.achivment_service = AchievmentsService
 
     async def get_levels_with_progress(self, course_id: int, user_id: int):
         async with self.uow:
@@ -46,7 +43,7 @@ class LevelService():
                 id=level_id,
                 title=level.title,
                 description=level.description or None,
-                is_complete=is_complited,
+                is_complete=is_complited or False,
             ) 
 
     async def get_level_theory(self, level_id: int):
@@ -118,9 +115,6 @@ class LevelService():
                 users_course.is_complete = True
 
             await self.uow.commit()
-            
-            #проверка на ачивки
-            await self.achivment_service.check_after_level_complete(user_id=user_id)
 
             return {
                 "message": f"Урок id:{level_id} завершён",
