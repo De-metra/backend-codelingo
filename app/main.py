@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqladmin import Admin
+from authlib.integrations.starlette_client import OAuth
 
 from app.api.v1 import auth, levels, tasks, courses, users, achievments
-from app.core.config import get_admin_key
+from app.core.config import get_admin_key, get_google_data
 from app.database.db import engine
 from app.internal.admin_views import (
     AdminAuth, CourseAdmin, 
@@ -45,6 +46,23 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+)
+
+google_data = get_google_data()
+oath = OAuth()
+oath.register(
+    name="google_auth",
+    client_id=google_data["google_id"],
+    client_secret=google_data["google_secret"],
+    authorize_url="https://accounts.google.com/o/oauth2/auth",
+    authorize_params=None,
+    access_token_url="https://accounts.google.com/o/oauth2/token",
+    access_token_params=None,
+    refresh_token_url=None,
+    authorize_state=data_key['secret_key'],
+    redirect_uri="http://127.0.0.1:8000/api/auth/google/callback",
+    jwks_uri="https://www.googleapis.com/oauth2/v3/certs",
+    client_kwargs={"scope": "openid profile email"},
 )
 
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])

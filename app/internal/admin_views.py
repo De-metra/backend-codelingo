@@ -150,12 +150,12 @@ class AchievmentsAdmin(LoggingMixin, ModelView, model=Achievments):
     column_searchable_list = [Achievments.title]
 
 class UserAdmin(LoggingMixin, ModelView, model=Users):
-    column_list = [Users.id, Users.username, Users.email, Users.picture_link, Users.created_at, Users.updated_at]
+    column_list = [Users.id, Users.username, Users.email, Users.picture_link, Users.is_active, Users.created_at, Users.updated_at, Users.deleted_at]
     name = "User"
     name_plural = "Users"
     icon = "fa-solid fa-user"
 
-    form_excluded_columns = [Users.hashed_password, Users.updated_at, Users.created_at, Users.stats, Users.levels, Users.courses, Users.achievments]
+    form_excluded_columns = [Users.hashed_password, Users.updated_at, Users.created_at, Users.deleted_at, Users.stats, Users.levels, Users.courses, Users.achievments]
     form_ajax_refs = {
         "stats" : {
             "fields": ("id", "user_id"),

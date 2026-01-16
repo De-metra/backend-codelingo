@@ -54,6 +54,4 @@ CODE_LENGTH = 6
 def generate_reset_code():
     return ''.join([str(random.randint(0, 9)) for _ in range(CODE_LENGTH)])
 
-def create_reset_code(user_id: int, ):
-    pass
     

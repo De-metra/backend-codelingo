@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     MAIL_FROM_NAME: str
     MAIL_STARTTLS: bool = True
     MAIL_SSL_TLS: bool = False
+
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: str
+    GOOGLE_REDIRECT_URI: str
     
     model_config = SettingsConfigDict(
         env_file=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".env")
@@ -43,3 +47,6 @@ def get_auth_data():
 
 def get_admin_key():
     return {"secret_key": settings.ADMIN_SECRET_KEY}
+
+def get_google_data():
+    return {'google_id': settings.GOOGLE_CLIENT_ID, 'google_secret': settings.GOOGLE_CLIENT_SECRET}

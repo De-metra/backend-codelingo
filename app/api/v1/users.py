@@ -27,7 +27,7 @@ async def get_users_stats(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
     
 
-@router.get("/me", response_model=UserReturn)
+@router.get("/me/", response_model=UserReturn)
 async def get_me(
     current_user: str = Depends(get_user_from_token), 
     user_service: UserService = Depends(get_user_service)
@@ -47,7 +47,7 @@ async def get_me(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
     
     
-@router.post("/change-me")  #patch?    
+@router.post("/change-me/")  #patch?    
 async def change_profile(
     users_data : UserChangeProfile, 
     current_user: str = Depends(get_user_from_token), 
@@ -67,13 +67,14 @@ async def change_profile(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
 
 
-@router.get("/achievments") #дописать
-async def get_my_achievments(
+@router.post("/delete-me/")
+async def soft_delete(
     current_user: str = Depends(get_user_from_token),
     user_service: UserService = Depends(get_user_service)
 ):
     try:
-        pass
+        return await user_service.soft_delete_account(int(current_user)) 
     except AppError as err:
         detail = str(err) or "Bad request"
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err    
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
+

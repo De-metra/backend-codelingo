@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select, update, and_
 from sqlalchemy.orm import selectinload
@@ -86,6 +88,20 @@ class UserService(BaseService):
                 email=user.email, 
                 picture_link=user.picture_link
             )
+        
+    async def soft_delete_account(self, user_id: int):
+        async with self.uow:
+            user = await self.uow.user.get_by_id(user_id)
+
+            if not user:
+                raise UserNotFoundError()
+            
+            user.is_active = False
+            user.deleted_at = datetime.now()
+
+            await self.uow.commit()
+
+            return {"message": f"Аккаунт {user.username} успешно удалён"}
         
 
 

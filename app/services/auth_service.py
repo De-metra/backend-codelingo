@@ -18,8 +18,8 @@ class AuthService():
 
     async def register(self, user_data: UserRegister) -> UserReturn: 
         async with self.uow:
-            is_email_exist = await self.uow.user.get_by_email(user_data.email)
-            if is_email_exist:
+            existing_user = await self.uow.user.get_by_email(user_data.email)
+            if existing_user and existing_user.is_active:
                 raise UserAlreadyExistsError()
 
             new_user = Users(

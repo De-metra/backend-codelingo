@@ -16,3 +16,5 @@ redis
 sqladmin
 itsdangerous
 fastapi-mail
+google-auth
+authlib

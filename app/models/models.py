@@ -58,9 +58,11 @@ class Users(Base):
     id: Mapped[int_pk]
     username: Mapped[str] = mapped_column(String(50), nullable=False)
     picture_link: Mapped[str_null_true]
-    email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(100), nullable=False)
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default='t')
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+    deleted_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
 
     stats: Mapped["Users_Stats"] = relationship(
         "Users_Stats", 

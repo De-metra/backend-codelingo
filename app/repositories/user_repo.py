@@ -10,9 +10,12 @@ class UserRepository(Repository):
 
     async def get_by_email(self, email: str):
         stmt = await self.session.execute(
-            select(Users).where(Users.email == email)
+            select(Users).where(
+                Users.email == email,
+                Users.is_active == True
+            )
         )
-        return stmt.scalar_one_or_none()
+        return stmt.scalars().first()
     
     async def get_by_id(self, id: int):
         stmt = await self.session.execute(
