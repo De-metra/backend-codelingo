@@ -2,6 +2,7 @@ from typing_extensions import Self
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field, field_validator, conint, model_validator, ConfigDict
 from typing import Optional, Any
+from fastapi import UploadFile
 import re
 
 
@@ -36,6 +37,12 @@ class UserChangeProfile(BaseModel):
     picture_link: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+""" class UserChangeProfile(BaseModel):
+    username: Optional[str] = None
+    picturw_file: Optional[UploadFile] = None
+
+    model_config = ConfigDict(from_attributes=True) """
 
 class UserUpdatedInfo(BaseModel):
     id: int

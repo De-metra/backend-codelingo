@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.schemas.level import LevelStatusReturn, LevelReturn, LevelBaseReturn, TheoryReturn
+from app.schemas.level import LevelBaseReturn, TheoryReturn
 from app.core.security import get_user_from_token
 from app.utils.dependencies import get_level_service, get_task_service
 from app.services.level_service import LevelService
@@ -14,28 +14,7 @@ from app.core.exception import (
 
 router = APIRouter()
 
-"""
-@router.get("/{theory_id}")
-async def get_theory(theory_id : int, session : AsyncSession = Depends(get_async_session)):
-
-    q = await session.execute(select(Theories).where(Theories.id == theory_id))
-    theory = q.scalar_one_or_none()
-
-    return {"theory": theory}
-"""
-
-'''
-@router.get("/")
-async def get_levels(course_id: int, current_user: Users = Depends(get_user_from_token), level_service: LevelService = Depends(get_level_service)) -> list[LevelStatusReturn]:
-    """
-    Возвращает список всех уровней и состояние (пройден / не пройден) для текущего пользователя.
-    
-    """
-    return await level_service.get_levels_with_progress(course_id, int(current_user))
-    '''
-
-
-@router.get("/{level_id}", response_model=LevelBaseReturn)
+@router.get("/{level_id}/", response_model=LevelBaseReturn)
 async def get_level_info(level_id: int, current_user: str = Depends(get_user_from_token), level_service: LevelService = Depends(get_level_service)):
     """
     Возвращает базовую информацию уровня(id, заголовок, описание, состояние).
@@ -52,7 +31,7 @@ async def get_level_info(level_id: int, current_user: str = Depends(get_user_fro
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
 
 
-@router.get("/{level_id}/theory", response_model=TheoryReturn)
+@router.get("/{level_id}/theory/", response_model=TheoryReturn)
 async def get_level_info(level_id: int, level_service: LevelService = Depends(get_level_service)):
     '''
     Возвращает теорию уровня.
@@ -69,7 +48,7 @@ async def get_level_info(level_id: int, level_service: LevelService = Depends(ge
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
 
 
-@router.get("/{level_id}/xp") 
+@router.get("/{level_id}/xp/") 
 async def get_xp(level_id: int, level_service: LevelService = Depends(get_level_service)):
  
     try:
@@ -84,7 +63,7 @@ async def get_xp(level_id: int, level_service: LevelService = Depends(get_level_
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
     
 
-@router.post("/{level_id}/complete")
+@router.post("/{level_id}/complete/")
 async def complete_level(
     level_id: int, 
     current_user: str = Depends(get_user_from_token), 
@@ -116,7 +95,7 @@ async def complete_level(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
 
     
-@router.get("/{level_id}/tasks")
+@router.get("/{level_id}/tasks/")
 async def get_level_tasks(
     level_id: int, 
     task_service : TaskService = Depends(get_task_service)

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.schemas.level import LevelStatusReturn, LevelReturn
+from app.schemas.level import LevelStatusReturn
 from app.schemas.course import CourseReturn
 from app.core.security import get_user_from_token
 from app.utils.dependencies import get_level_service, get_course_service
@@ -18,6 +18,7 @@ router = APIRouter()
 async def get_courses(course_service: CourseService = Depends(get_course_service)):
     return await course_service.get_all_courses()
 
+
 @router.get("/{course_id}/")
 async def get_course_with_levels(
     course_id: int, 
@@ -32,7 +33,7 @@ async def get_course_with_levels(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
     
 
-@router.get("/{course_id}/levels")
+@router.get("/{course_id}/levels/")
 async def get_levels(
     course_id: int, 
     current_user: str = Depends(get_user_from_token), 
@@ -49,7 +50,7 @@ async def get_levels(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
     
 
-@router.post("/{course_id}/start")
+@router.post("/{course_id}/start/")
 async def start_course(
     course_id: int, 
     current_user: str = Depends(get_user_from_token), 

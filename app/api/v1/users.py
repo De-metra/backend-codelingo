@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 
-from app.schemas.user import UserReturn, UserChangeProfile
+from app.schemas.user import UserReturn
 from app.core.security import  get_user_from_token
 from app.services.user_service import UserService
 from app.utils.dependencies import get_user_service
@@ -17,7 +17,7 @@ async def get_users_stats(
     current_user: str = Depends(get_user_from_token), 
     user_service: UserService = Depends(get_user_service)
 ):
-    '''Получаем статистику конкретного пользователя.'''
+    """Получаем статистику конкретного пользователя."""
     try:
         return await user_service.get_user_stats(int(current_user))
     except StatsNotFoundError: 
@@ -46,15 +46,20 @@ async def get_me(
         detail = str(err) or "Bad request"
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
     
-    
-@router.post("/change-me/")  #patch?    
+
+@router.patch("/change-me/")  #patch   
 async def change_profile(
-    users_data : UserChangeProfile, 
+    username: str | None = Form(default=None),
+    file: UploadFile | None = File(default=None),
     current_user: str = Depends(get_user_from_token), 
     user_service: UserService = Depends(get_user_service)
 ):
     try:
-        return await user_service.change_me(user_id=int(current_user), data=users_data)
+        return await user_service.change_me(
+            user_id=int(current_user),
+            username=username,
+            file=file
+        )
     except UserNotFoundError:
         raise HTTPException(
             status_code=400,
@@ -62,6 +67,24 @@ async def change_profile(
         )
     except NoneDataToUpdate:
         return {}
+    except AppError as err:
+        detail = str(err) or "Bad request"
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
+
+
+@router.post("/change-avatar/")
+async def change_avatar(
+    file: UploadFile = File(...),
+    current_user: str = Depends(get_user_from_token),
+    user_service: UserService = Depends(get_user_service)
+):
+    try:
+        return await user_service.change_avatar(int(current_user), file)
+    except UserNotFoundError:
+        raise HTTPException(
+            status_code=400,
+            detail="Пользователь не найден"
+        )
     except AppError as err:
         detail = str(err) or "Bad request"
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err

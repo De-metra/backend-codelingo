@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.schemas.user import UserLogin, UserReturn, UserRegister, UserChangeProfile
+from app.schemas.user import UserLogin, UserRegister
 from app.schemas.email import EmailSchema, EmailRequest, CodeRequest, CodeUpdateRequest
 from app.internal.mail import create_message, get_mail
 from app.services.auth_service import AuthService
@@ -13,7 +13,7 @@ from app.core.exception import (
 
 router = APIRouter()
 
-@router.post("/register")
+@router.post("/register/")
 async def register(
     user_in: UserRegister, 
     auth_service: AuthService = Depends(get_auth_service)
@@ -30,7 +30,7 @@ async def register(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
     
    
-@router.post("/login")
+@router.post("/login/")
 async def login(
     user_in: UserLogin, 
     auth_service: AuthService = Depends(get_auth_service)
@@ -47,7 +47,7 @@ async def login(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
     
 
-@router.post("/forgot-password")
+@router.post("/forgot-password/")
 async def forgot_password(
     user_mail: EmailRequest, 
     auth_service: AuthService = Depends(get_auth_service)
@@ -64,7 +64,7 @@ async def forgot_password(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
 
 
-@router.post("/verify-code")
+@router.post("/verify-code/")
 async def verify_code(
     data: CodeRequest, 
     auth_service: AuthService = Depends(get_auth_service)
@@ -80,7 +80,7 @@ async def verify_code(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
 
 
-@router.post("/reset-password")
+@router.post("/reset-password/")
 async def reset_password(
     data: CodeUpdateRequest, 
     auth_service: AuthService = Depends(get_auth_service)
@@ -94,14 +94,7 @@ async def reset_password(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
 
 
-"""
-два варианта - либо ссылка сброс пароля в вебе
-либо я присылаю код на почту, а в приложении ты вводишь этот код и задаёшь новый пароль
-"""
-
-
-
-@router.post("/send-mail")
+@router.post("/send-mail/")
 async def send_mail(emails: EmailSchema):
     list_emails = emails.emails
 

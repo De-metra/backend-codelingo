@@ -9,7 +9,7 @@ from app.core.exception import AppError, TaskNotFoundError
 
 router = APIRouter()
 
-@router.get("/{task_id}")
+@router.get("/{task_id}/")
 async def get_task_info(
     task_id: int, 
     task_service: TaskService = Depends(get_task_service)
@@ -23,7 +23,7 @@ async def get_task_info(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
     
 
-@router.get("/{task_id}/hint")
+@router.get("/{task_id}/hint/")
 async def get_level_info(
     task_id: int, 
     task_service: TaskService = Depends(get_task_service)
@@ -38,7 +38,7 @@ async def get_level_info(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
 
 
-@router.post("/{task_id}/submit")           # ДОПИСАТЬ
+@router.post("/{task_id}/submit/")           # ДОПИСАТЬ
 async def check_task_answer(
     task_id : int, 
     answer_data : TaskAnswer, 

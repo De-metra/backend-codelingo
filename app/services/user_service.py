@@ -1,12 +1,13 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile
 from sqlalchemy import select, update, and_
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.db import get_async_session
 from app.database.db import async_session_maker
+from app.core.cloudinary import upload_image
 from app.schemas.user import UserRegister, UserReturn, Stats, UserChangeProfile, UserUpdatedInfo
 from app.services.base import BaseService
 from app.models.models import Users, Users_Stats
@@ -67,7 +68,52 @@ class UserService(BaseService):
                 streak=stats.streak
             )
         
-    async def change_me(self, user_id: int, data: UserChangeProfile):
+    async def change_avatar(self, user_id: int, file: UploadFile):
+        async with self.uow:
+            user = await self.uow.user.get_by_id(user_id)
+
+            if not user:
+                raise UserNotFoundError()
+
+            avatar_url = upload_image(file=file.file, user_id=user_id) 
+
+            user.picture_link = avatar_url
+            await self.uow.commit()
+
+            return {"avatar_url": avatar_url}
+        
+    
+    async def change_me(self, user_id: int, username: str | None, file: UploadFile | None):
+        async with self.uow:
+            user = await self.uow.user.get_by_id(user_id)
+
+            if not user:
+                raise UserNotFoundError()
+            
+            update_data = {}
+
+            if username:
+                update_data["username"] = username
+
+            if file:
+                picture_link = upload_image(file=file.file, user_id=user_id) 
+                update_data["picture_link"] = picture_link   
+
+            if not update_data:
+                raise NoneDataToUpdate()
+
+            await self.uow.user.update(user=user, data=update_data)
+            await self.uow.commit()
+
+            return UserUpdatedInfo(
+                id=user_id,
+                username=user.username,
+                email=user.email, 
+                picture_link=user.picture_link
+            )
+
+        
+    """ async def change_me(self, user_id: int, data: UserChangeProfile):
         async with self.uow:
             user = await self.uow.user.get_by_id(user_id)
 
@@ -87,7 +133,7 @@ class UserService(BaseService):
                 username=user.username,
                 email=user.email, 
                 picture_link=user.picture_link
-            )
+            ) """
         
     async def soft_delete_account(self, user_id: int):
         async with self.uow:

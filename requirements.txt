@@ -19,3 +19,4 @@ fastapi-mail
 google-auth
 authlib
 httpx
+cloudinary
