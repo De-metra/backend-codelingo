@@ -4,7 +4,7 @@
 set -e
 
 echo "Запуск миграций Alembic..."
-alembic upgrade bcfd2610717d
+alembic upgrade head
 
 echo "Запуск сервера Uvicorn..."
 # Используем exec, чтобы uvicorn стал основным процессом (PID 1)
