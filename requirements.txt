@@ -20,3 +20,4 @@ google-auth
 authlib
 httpx
 cloudinary
+resend

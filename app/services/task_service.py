@@ -7,13 +7,13 @@ from app.schemas.level import LevelBaseReturn, LevelStatusReturn, LevelReturn, T
 from app.schemas.task import TaskBase, TaskAnswer
 from app.utils.uow import IUnitOfWork
 from app.core.exception import *
-from app.executors.python_executor import PythonExexcutor
+from app.executors.base import ExecutorRegistry
 
 
 class TaskService():
-    def __init__(self, uow: IUnitOfWork, executor: PythonExexcutor):
+    def __init__(self, uow: IUnitOfWork, executor_registry: ExecutorRegistry):
         self.uow = uow
-        self.executor = executor
+        self.executor_registry = executor_registry
 
 
     async def get_level_tasks(self, level_id: int):
@@ -56,17 +56,15 @@ class TaskService():
                         for g in t.gaps
                     ]
                 elif t_type == 'code':
-                    task_info["tests"] = [
+                    task_info["code"] = [
                         {
-                            "id": test.id,
-                            "input_data": test.input_data,
-                            "expected_output_data": test.expected_output_data,
-                            "input_type": test.input_type.name if test.input_type else None,
-                            "output_type": test.output_type.name if test.output_type else None,
+                            "id": c.id,
+                            "func_name": c.func_name,
+                            "template": c.template,
+                            "language": c.language
                         }
-                        for test in t.tests
+                        for c in t.code
                     ]
-                
                 tasks_data.append(task_info)
 
             return {"level_id": level_id, "tasks" : tasks_data}
@@ -123,14 +121,18 @@ class TaskService():
                 return {"is_correct": is_correct, "correct_answers": correct_answers}
             # "answers": "def add(x, y):
             #                       return x+y"
+            #              {
+            #     "answers": "function sum(a,b,c) {\n    return a+b+c\n}"
+            # } 
             elif task_type == "code":
-                tests = await self.uow.task.get_task_tests_by_id(task_id)
+                code_data = await self.uow.task.get_task_code_by_id(task_id)
+                tests = await self.uow.task.get_task_tests_by_code_id(code_data.id)
 
-                result = await self.executor.execute(
+                executor = self.executor_registry.get(code_data.language.language)
+                result = await executor.execute(
                     user_code=answer_data.answers,
                     tests=tests,
-                    func_name=task.func_name
+                    func_name=code_data.func_name
                 )
-                ##ДОПИСАТЬ -------- МБ ПРОВЕРКА ИИ??
                 return result 
 

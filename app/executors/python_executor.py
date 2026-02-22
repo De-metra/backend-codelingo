@@ -3,10 +3,11 @@ import json
 import traceback
 from types import MappingProxyType
 
+from app.executors.base import BaseExecutor
 from app.models.models import Tests
 
 
-class PythonExexcutor:
+class PythonExexcutor(BaseExecutor):
     def __init__(self, timeout: int = 2):
         self.timeout = timeout
 

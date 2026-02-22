@@ -7,10 +7,17 @@ from app.services.task_service import TaskService
 from app.services.achievment_service import AchievmentsService
 from app.utils.uow import IUnitOfWork, UnitOfWork
 from app.executors.python_executor import PythonExexcutor
+from app.executors import base, python_executor, js_executor
 
 
 async def get_python_executor():
     return PythonExexcutor(timeout=2)
+
+async def get_executor_registry():
+    registy = base.ExecutorRegistry()
+    registy.register("python", python_executor.PythonExexcutor())
+    registy.register("javascript", js_executor.JavaScriptExecutor())
+    return registy
 
 async def get_achievment_service(uow: IUnitOfWork = Depends(UnitOfWork)) -> AchievmentsService:
     return AchievmentsService(uow)
@@ -32,7 +39,7 @@ async def get_task_service(uow: IUnitOfWork = Depends(UnitOfWork)) -> TaskServic
 
 async def get_task_service(
     uow: IUnitOfWork = Depends(UnitOfWork),
-    executor: PythonExexcutor = Depends(get_python_executor)
+    executor_registry: base.ExecutorRegistry = Depends(get_executor_registry)
 ) -> TaskService:
-    return TaskService(uow, executor)
+    return TaskService(uow, executor_registry)
 

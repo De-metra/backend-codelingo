@@ -38,11 +38,11 @@ class UserChangeProfile(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-""" class UserChangeProfile(BaseModel):
-    username: Optional[str] = None
-    picturw_file: Optional[UploadFile] = None
+# class UserChangeProfile(BaseModel):
+#     username: Optional[str] = None
+#     picturw_file: Optional[UploadFile] = None
 
-    model_config = ConfigDict(from_attributes=True) """
+#     model_config = ConfigDict(from_attributes=True) 
 
 class UserUpdatedInfo(BaseModel):
     id: int

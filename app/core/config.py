@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     DB_PASSWORD: str 
     SECRET_KEY: str
     ADMIN_SECRET_KEY: str
+    ADMIN_USERNAME: str
+    ADMIN_PASSWORD: str
     ALGORITHM: str
     MAIL_USERNAME: str
     MAIL_PASSWORD: str
@@ -28,6 +30,8 @@ class Settings(BaseSettings):
     CLOUDINARY_CLOUD_NAME: str
     CLOUDINARY_API_KEY: str
     CLOUDINARY_API_SECRET: str
+
+    RESEND_API_KEY: str
     
     model_config = SettingsConfigDict(
         env_file=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".env")
@@ -36,10 +40,6 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-
-"""def get_db_url():
-    return (f"postgresql+asyncpg://{settings.DB_USER}:{settings.DB_PASSWORD}@"
-            f"{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}")"""
 
 def get_db_url():
     return settings.DATABASE_URL

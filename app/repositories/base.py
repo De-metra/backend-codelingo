@@ -11,9 +11,9 @@ from app.database.db import get_async_session
 from app.database.db import async_session_maker
 
 class AbstractRepository(ABC):
-    """ @abstractmethod
-    async def add(self, data: dict):
-        raise NotImplementedError """
+    # @abstractmethod
+    # async def add(self, data: dict):
+    #     raise NotImplementedError 
 
     @abstractmethod
     async def find_all(self):
@@ -26,15 +26,15 @@ class Repository(AbstractRepository):  # репозиторий для алхи�
     def __init__(self, session: AsyncSession):
         self.session = session  
 
-    """ async def add(self, data):
-        if isinstance(data, self.model):
-            data_dict = {c.name: getattr(data, c.name) for c in self.model.__table__.columns if c.name != "id"}     #что-то сделать
-        else:
-            data_dict = data
+    # async def add(self, data):
+    #     if isinstance(data, self.model):
+    #         data_dict = {c.name: getattr(data, c.name) for c in self.model.__table__.columns if c.name != "id"}     #что-то сделать
+    #     else:
+    #         data_dict = data
 
-        stmt = insert(self.model).values(**data_dict).returning(self.model)
-        res = await self.session.execute(stmt)
-        return res.scalar_one() """
+    #     stmt = insert(self.model).values(**data_dict).returning(self.model)
+    #     res = await self.session.execute(stmt)
+    #     return res.scalar_one() 
 
     async def find_all(self):
         result = await self.session.execute(select(self.model))

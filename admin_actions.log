@@ -62,3 +62,19 @@
 2026-01-08 15:54:40 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: Users_Achievments - ID: 2
 2026-01-08 15:59:07 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: Users_Achievments - ID: 3
 2026-01-08 15:59:07 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: Users_Achievments - ID: 4
+2026-02-13 16:18:37 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Languages - ID: 1 - Details: Form data: {'language': 'python'}
+2026-02-13 16:18:43 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Languages - ID: 2 - Details: Form data: {'language': 'javascripts'}
+2026-02-13 16:18:49 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Languages - ID: 2 - Details: Form data: {'language': 'javascript'}
+2026-02-13 16:23:33 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tasks_Code - ID: 1 - Details: Form data: {'task': '4', 'language': '1', 'tests': ['2'], 'template': 'def sum_numbers(a, b):\\r\\n    # напишите код здесь', 'func_name': 'sum_numbers'}
+2026-02-13 16:24:35 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tasks_Code - ID: 2 - Details: Form data: {'task': '5', 'language': '1', 'template': 'def max_number(a, b):\\r\\n    # напишите код здесь', 'func_name': 'max_number'}
+2026-02-13 16:25:04 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tasks_Code - ID: 3 - Details: Form data: {'task': '6', 'language': '1', 'template': 'def text_length(text):\\r\\n    # напишите код здесь', 'func_name': 'text_length'}
+2026-02-13 16:27:18 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tasks - ID: 7 - Details: Form data: {'type_rel': '3', 'title': 'Сумма трех чисел', 'description': 'Напиши функцию, которая принимает три числа любого формата и возвращает их сумму', 'hint': ''}
+2026-02-13 16:28:58 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tasks_Code - ID: 4 - Details: Form data: {'task': '7', 'language': '2', 'template': 'function sum(a,b,c) { \r\n    // напишите код здесь\r\n}\r\n', 'func_name': 'sum'}
+2026-02-13 16:29:30 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tests - ID: 1 - Details: Form data: {'code': '1', 'input_type': '3', 'output_type': '1', 'input_data': '[1, 2]', 'expected_output_data': '3'}
+2026-02-13 16:29:33 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tests - ID: 1 - Details: Form data: {'code': '1', 'input_type': '3', 'output_type': '1', 'input_data': '[1, 2]', 'expected_output_data': '3'}
+2026-02-13 16:29:46 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tests - ID: 3 - Details: Form data: {'code': '2', 'input_type': '3', 'output_type': '1', 'input_data': '[3, 7]', 'expected_output_data': '7'}
+2026-02-13 16:29:50 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tests - ID: 4 - Details: Form data: {'code': '2', 'input_type': '3', 'output_type': '1', 'input_data': '[4 ,4]', 'expected_output_data': '4'}
+2026-02-13 16:29:56 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tests - ID: 5 - Details: Form data: {'code': '3', 'input_type': '2', 'output_type': '1', 'input_data': '"Python"', 'expected_output_data': '6'}
+2026-02-13 16:30:00 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tests - ID: 6 - Details: Form data: {'code': '3', 'input_type': '2', 'output_type': '1', 'input_data': '""', 'expected_output_data': '0'}
+2026-02-13 16:31:11 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tests - ID: 7 - Details: Form data: {'code': '4', 'input_type': '3', 'output_type': '1', 'input_data': '[1, 2, 5]', 'expected_output_data': '8'}
+2026-02-13 16:31:31 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tests - ID: 8 - Details: Form data: {'code': '4', 'input_type': '3', 'output_type': '1', 'input_data': '[-1, 1, 0]', 'expected_output_data': '0'}

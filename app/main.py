@@ -13,6 +13,7 @@ from app.internal.admin_views import (
     LevelTaskAdmin, TaskAdmin, TaskTypeAdmin, 
     TaskOptionAdmin, TaskGapAdmin, TestAdmin, 
     DataTypeAdmin, PasswordResetAdmin, AchievmentsAdmin, UsersAchievmentsAdmin,
+    TaskCodeAdmin, LanguageAdmin
 )
 
 
@@ -22,6 +23,7 @@ data_key = get_admin_key()
 authentication_backend = AdminAuth(secret_key=data_key['secret_key'])   
 admin = Admin(app, engine, authentication_backend=authentication_backend)
 
+# Ниже почистить
 admin.add_view(UserAdmin)
 admin.add_view(UsersStatsAdmin)
 admin.add_view(UsersAchievmentsAdmin)
@@ -36,9 +38,12 @@ admin.add_view(TaskAdmin)
 admin.add_view(TaskTypeAdmin)
 admin.add_view(TaskOptionAdmin)
 admin.add_view(TaskGapAdmin)
+admin.add_view(TaskCodeAdmin)
 admin.add_view(TestAdmin)
 admin.add_view(DataTypeAdmin)
+admin.add_view(LanguageAdmin)
 admin.add_view(PasswordResetAdmin)
+
 
 app.add_middleware(
     CORSMiddleware,

@@ -191,16 +191,13 @@ class Tasks(Base):
     task_type: Mapped[int] = mapped_column(ForeignKey("tasks_types.id", ondelete="SET NULL"), nullable=False)
     hint: Mapped[str_null_true]
 
-    template: Mapped[str_null_true]
-    func_name: Mapped[str_null_true]
-
     tasks_link: Mapped[list["Level_Tasks"]] = relationship(
         back_populates="task",
         cascade="all, delete-orphan",
         passive_deletes=True
         )
     type_rel: Mapped["Tasks_Types"] = relationship("Tasks_Types", back_populates="tasks")
-    tests: Mapped[list["Tests"]] = relationship(
+    code: Mapped[list["Tasks_Code"]] = relationship(
         back_populates="task",
         cascade="all, delete-orphan",
         passive_deletes=True
@@ -233,13 +230,13 @@ class Tasks_Types(Base):
 
 class Tests(Base):
     id: Mapped[int_pk]
-    task_id: Mapped[int] = mapped_column(ForeignKey("tasks.id", ondelete="CASCADE"), nullable=False)
+    code_id: Mapped[int] = mapped_column(ForeignKey("tasks_code.id", ondelete="CASCADE"), nullable=False)
     input_type_id: Mapped[int] = mapped_column(ForeignKey("data_types.id", ondelete="SET NULL"), nullable=True)
     output_type_id: Mapped[int] = mapped_column(ForeignKey("data_types.id", ondelete="SET NULL"), nullable=True)
     input_data: Mapped[str_null_true]
     expected_output_data: Mapped[str_null_true]
 
-    task: Mapped["Tasks"] = relationship("Tasks", back_populates="tests")
+    code: Mapped["Tasks_Code"] = relationship("Tasks_Code", back_populates="tests")
     input_type: Mapped["Data_Types"] = relationship("Data_Types", foreign_keys=[input_type_id])
     output_type: Mapped["Data_Types"] = relationship("Data_Types", foreign_keys=[output_type_id])
 
@@ -249,6 +246,32 @@ class Data_Types(Base):
 
     def __str__(self):
         return self.name
+
+class Languages(Base):
+    id: Mapped[int_pk]
+    language: Mapped[str] = mapped_column(String, nullable=False)
+
+    def __str__(self):
+        return self.language
+
+class Tasks_Code(Base):
+    id: Mapped[int_pk]
+    task_id: Mapped[int] = mapped_column(ForeignKey("tasks.id", ondelete="CASCADE"), nullable=False)
+    template: Mapped[str] = mapped_column(String, nullable=False)
+    func_name: Mapped[str] = mapped_column(String(80), nullable=False)
+    language_id: Mapped[int] = mapped_column(ForeignKey("languages.id"), nullable=False)
+
+    task: Mapped["Tasks"] = relationship("Tasks", back_populates="code")
+    language: Mapped["Languages"] = relationship("Languages", foreign_keys=[language_id])
+    tests: Mapped[list["Tests"]] = relationship(
+        back_populates="code",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+        )
+
+    def __str__(self):
+        return self.func_name
+
 
 class Tasks_Options(Base):
     id: Mapped[int_pk]

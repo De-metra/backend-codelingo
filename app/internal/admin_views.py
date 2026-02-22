@@ -8,11 +8,12 @@ from wtforms.widgets import TextArea
 from jose import jwt
 
 from app.core.security import create_jwt_token, get_user_from_token
+from app.core.config import settings
 from app.models.models import (
     Courses, Users, Users_Stats, 
     Users_Courses, Users_Levels, Levels, Theories, Level_Tasks, 
     Tasks, Tasks_Types, Tests, Data_Types, Tasks_Options, Tasks_Gap, 
-    PasswordResetCode, Achievments, Users_Achievments
+    PasswordResetCode, Achievments, Users_Achievments, Languages, Tasks_Code
 )
 
 
@@ -73,7 +74,7 @@ class AdminAuth(AuthenticationBackend):
         password = form.get("password")
 
                 
-        if username == "admin_codelingo_super" and password == "backend-codelingo":     #проверку заменить на что-то другое
+        if username == settings.ADMIN_USERNAME and password == settings.ADMIN_PASSWORD:     #проверку заменить на что-то другое
             token = create_jwt_token({"sub": username})
 
             request.session.update({"token": token})
@@ -289,21 +290,17 @@ class LevelTaskAdmin(LoggingMixin, ModelView, model=Level_Tasks):
 
 
 class TaskAdmin(LoggingMixin, ModelView, model=Tasks):
-    column_list = [Tasks.id, Tasks.title, Tasks.description, Tasks.type_rel, Tasks.hint, Tasks.template, Tasks.func_name, Tasks.updated_at]
+    column_list = [Tasks.id, Tasks.title, Tasks.description, Tasks.type_rel, Tasks.hint, Tasks.updated_at]
     name = "Task"
     name_plural = "Tasks"
     icon = "fa-solid fa-code"
 
-    form_excluded_columns = [Tasks.updated_at, Tasks.tasks_link, Tasks.tests, Tasks.options, Tasks.gaps]
+    form_excluded_columns = [Tasks.updated_at, Tasks.tasks_link, Tasks.code, Tasks.options, Tasks.gaps]
     column_formatters = {
         Tasks.description: lambda m, a: (
             m.description[:40] + "..." if m.description and len(m.description) > 40
             else m.description or ""
         )
-    }
-
-    form_overrides = {
-        "template": CustomTextAreaField
     }
     
     form_widget_args = {
@@ -342,6 +339,34 @@ class DataTypeAdmin(LoggingMixin, ModelView, model=Data_Types):
 
     form_excluded_columns = [Data_Types.updated_at]
 
+class LanguageAdmin(LoggingMixin, ModelView, model=Languages):
+    column_list = "__all__"
+    name = "Language"
+    name_plural = "Languages"
+
+    form_excluded_columns = [Languages.updated_at]
+
+class TaskCodeAdmin(LoggingMixin, ModelView, model=Tasks_Code):
+    column_exclude_list = [Tasks_Code.tests]
+    name = "Task Code"
+    name_plural = "Tasks Code"
+
+    column_searchable_list = [Tasks_Code.task_id, Tasks_Code.func_name]
+    
+
+    column_formatters = {
+        Tasks_Code.template: lambda m, a: (
+            m.template[:40] + "..." if m.template and len(m.template) > 40
+            else m.template or ""
+        )
+    }
+
+    form_excluded_columns = [Tasks_Code.updated_at, Tasks_Code.tests]
+
+    form_overrides = {
+        "template": CustomTextAreaField
+    }
+
 class TaskOptionAdmin(LoggingMixin, ModelView, model=Tasks_Options):
     column_list = "__all__"
     name = "Task Choice"
@@ -349,15 +374,13 @@ class TaskOptionAdmin(LoggingMixin, ModelView, model=Tasks_Options):
 
     form_excluded_columns = [Tasks_Options.updated_at]
 
-    column_searchable_list = [Tasks_Options.task_id]
+    column_searchable_list = [Tasks_Options.task_id, Tasks_Options.text]
     column_formatters = {
         Tasks_Options.text: lambda m, a: (
             m.text[:40] + "..." if m.text and len(m.text) > 40
             else m.text or ""
         )
     }
-
-    column_searchable_list = [Tasks_Options.text]
 
 class TaskGapAdmin(LoggingMixin, ModelView, model=Tasks_Gap):
     column_list = "__all__"

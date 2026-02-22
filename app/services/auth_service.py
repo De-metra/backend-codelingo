@@ -6,6 +6,7 @@ from app.models.models import Users, Users_Stats, PasswordResetCode
 from app.schemas.user import UserRegister, UserReturn, UserLogin
 from app.schemas.email import CodeUpdateRequest, EmailSchema, EmailRequest, CodeRequest
 from app.core.security import get_user_from_token, get_password_hash, generate_reset_code
+from app.core.resend import send_reset_mail
 from app.internal.mail import create_message, get_mail
 #from app.internal.mail import send_email  # твой метод отправки
 from app.utils.uow import IUnitOfWork
@@ -78,24 +79,26 @@ class AuthService():
             await self.uow.reset_code.add(reset_code) 
             await self.uow.commit()
 
-            html = f"""
-                Приветствуем!<br>
+            await send_reset_mail(user_mail.email, code)
+
+            # html = f
+            #     Приветствуем!<br>
                 
-                Чтобы восстановить доступ к своему аккаунту, введите, пожалуйста, код:<br>
+            #     Чтобы восстановить доступ к своему аккаунту, введите, пожалуйста, код:<br>
 
-                <h1>{code}</h1>
+            #     <h1>{code}</h1>
 
-                Если вы получили это письмо по ошибке, просто проигнорируйте его.
-            """
+            #     Если вы получили это письмо по ошибке, просто проигнорируйте его.
             
-            message = create_message(
-                recipients=[user_mail.email],
-                subject="Codelingo | Восстановление пароля",
-                body=html
-            )
+            
+            # message = create_message(
+            #     recipients=[user_mail.email],
+            #     subject="Codelingo | Восстановление пароля",
+            #     body=html
+            # )
 
-            mail = get_mail()
-            await mail.send_message(message)
+            # mail = get_mail()
+            # await mail.send_message(message) 
 
             return {"message": "Сообщение с кодом отправлено на вашу почту!"}
         
