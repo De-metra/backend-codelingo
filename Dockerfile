@@ -8,4 +8,11 @@ COPY . .
 
 RUN pip install -r requirements.txt
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "10000"]
+# 1. Копируем скрипт в контейнер
+COPY entrypoint.sh .
+
+# 2. Даем права на выполнение скрипта
+RUN chmod +x entrypoint.sh
+
+# 3. Указываем скрипт как точку входа
+ENTRYPOINT ["./entrypoint.sh"]

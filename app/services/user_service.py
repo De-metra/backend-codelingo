@@ -113,27 +113,27 @@ class UserService(BaseService):
             )
 
         
-    """ async def change_me(self, user_id: int, data: UserChangeProfile):
-        async with self.uow:
-            user = await self.uow.user.get_by_id(user_id)
+    # async def change_me(self, user_id: int, data: UserChangeProfile):
+    #     async with self.uow:
+    #         user = await self.uow.user.get_by_id(user_id)
 
-            if not user:
-                raise UserNotFoundError()
+    #         if not user:
+    #             raise UserNotFoundError()
             
-            update_data = data.model_dump(exclude_unset=True)
+    #         update_data = data.model_dump(exclude_unset=True)
 
-            if not update_data:
-                raise NoneDataToUpdate()
+    #         if not update_data:
+    #             raise NoneDataToUpdate()
 
-            await self.uow.user.update(user=user, data=update_data)
-            await self.uow.commit()
+    #         await self.uow.user.update(user=user, data=update_data)
+    #         await self.uow.commit()
 
-            return UserUpdatedInfo(
-                id=user_id,
-                username=user.username,
-                email=user.email, 
-                picture_link=user.picture_link
-            ) """
+    #         return UserUpdatedInfo(
+    #             id=user_id,
+    #             username=user.username,
+    #             email=user.email, 
+    #             picture_link=user.picture_link
+    #         ) 
         
     async def soft_delete_account(self, user_id: int):
         async with self.uow:
