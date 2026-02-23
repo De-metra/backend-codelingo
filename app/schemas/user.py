@@ -14,7 +14,7 @@ class UserBase(BaseModel):
 class UserLogin(BaseModel):
     """Модель для входа (логина)"""
     email: EmailStr = Field(..., example="user@example.com")
-    password: str = Field(..., min_length=5, max_length=50, example="mypassword123")
+    password: str = Field(..., example="mypassword123")
 
 class UserRegister(UserBase):
     """Модель для регистрации пользователя"""
