@@ -80,3 +80,7 @@ app.include_router(achievments.router, prefix="/api/achievments", tags=["achievm
 @app.get("/")
 async def get_root():
     return {"message": "Hello World"}
+
+@app.get("/health")
+async def get_health():
+    return {"status": "ok"}
