@@ -59,9 +59,13 @@ class Users(Base):
     username: Mapped[str] = mapped_column(String(50), nullable=False)
     picture_link: Mapped[str_null_true]
     email: Mapped[str] = mapped_column(String(100), nullable=False)
-    hashed_password: Mapped[str] = mapped_column(String, nullable=False)
+
+    hashed_password: Mapped[str] = mapped_column(String, nullable=True)
+    google_id: Mapped[str] = mapped_column(String, nullable=True)
+    auth_provider: Mapped[str] = mapped_column(String, server_default="email")     #Таблица-словарь?
+
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default='t')
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, server_default=func.now())
     deleted_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
 
     stats: Mapped["Users_Stats"] = relationship(

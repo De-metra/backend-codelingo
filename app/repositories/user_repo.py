@@ -23,6 +23,12 @@ class UserRepository(Repository):
         )
         return stmt.scalar_one_or_none()
     
+    async def get_by_google_id(self, google_id: str):
+        stmt = await self.session.execute(
+            select(Users).where(Users.google_id == google_id)
+        )
+        return stmt.scalar_one_or_none()
+    
     async def add(self, user_data: Users):
         self.session.add(user_data)
         return user_data

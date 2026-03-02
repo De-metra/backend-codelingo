@@ -78,3 +78,15 @@
 2026-02-13 16:30:00 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tests - ID: 6 - Details: Form data: {'code': '3', 'input_type': '2', 'output_type': '1', 'input_data': '""', 'expected_output_data': '0'}
 2026-02-13 16:31:11 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tests - ID: 7 - Details: Form data: {'code': '4', 'input_type': '3', 'output_type': '1', 'input_data': '[1, 2, 5]', 'expected_output_data': '8'}
 2026-02-13 16:31:31 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tests - ID: 8 - Details: Form data: {'code': '4', 'input_type': '3', 'output_type': '1', 'input_data': '[-1, 1, 0]', 'expected_output_data': '0'}
+2026-03-02 15:25:08 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: PasswordResetCode - ID: 4
+2026-03-02 15:25:08 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: PasswordResetCode - ID: 6
+2026-03-02 15:25:08 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: PasswordResetCode - ID: 7
+2026-03-02 15:25:08 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: PasswordResetCode - ID: 8
+2026-03-02 15:25:08 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: PasswordResetCode - ID: 9
+2026-03-02 15:25:08 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: PasswordResetCode - ID: 10
+2026-03-02 15:25:08 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: PasswordResetCode - ID: 11
+2026-03-02 15:25:08 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: PasswordResetCode - ID: 12
+2026-03-02 15:25:08 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: PasswordResetCode - ID: 13
+2026-03-02 15:25:08 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: PasswordResetCode - ID: 14
+2026-03-02 15:25:12 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: PasswordResetCode - ID: 15
+2026-03-02 15:25:12 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: PasswordResetCode - ID: 16

@@ -8,7 +8,7 @@ resend.api_key = settings.RESEND_API_KEY
 
 async def send_reset_mail(user_email: str, code: str):
     resend.Emails.send({
-        "from": "Codelingo <onboarding@resend.dev>",
+        "from": f"{settings.RESEND_FROM}",
         "to": [user_email],
         "subject": "Codelingo | Восстановление пароля",
         "html": f"""

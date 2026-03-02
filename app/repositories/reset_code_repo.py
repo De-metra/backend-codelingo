@@ -23,6 +23,17 @@ class ResetCodeRepository(Repository):
     async def add(self, data: PasswordResetCode):
         self.session.add(data)
         
+    async def get_existing_code(self, user_id: int):
+        stmt = await self.session.execute(
+            select(PasswordResetCode).where(
+                and_(
+                    PasswordResetCode.user_id == user_id,
+                    PasswordResetCode.is_used == False,
+                    PasswordResetCode.expires_at > datetime.now()
+                ) 
+            )
+        )
+        return stmt.scalar_one_or_none()
 
     async def get_valid_code(self, user_id: int, code: str):
         stmt = select(PasswordResetCode).where(
@@ -39,3 +50,6 @@ class ResetCodeRepository(Repository):
 
     async def mark_used(self, reset_code: PasswordResetCode):
         reset_code.is_used = True
+
+    async def delete(self, code: PasswordResetCode):
+        await self.session.delete(code)

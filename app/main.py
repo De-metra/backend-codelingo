@@ -1,48 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqladmin import Admin
-from authlib.integrations.starlette_client import OAuth
+from fastapi.responses import PlainTextResponse
 
 from app.api.v1 import auth, levels, tasks, courses, users, achievments
-from app.core.config import get_admin_key, get_google_data
-from app.database.db import engine
-from app.internal.admin_views import (
-    AdminAuth, CourseAdmin, 
-    UserAdmin, UsersStatsAdmin, UsersCoursesAdmin, 
-    UsersLevelsAdmin, LevelAdmin, TheoryAdmin, 
-    LevelTaskAdmin, TaskAdmin, TaskTypeAdmin, 
-    TaskOptionAdmin, TaskGapAdmin, TestAdmin, 
-    DataTypeAdmin, PasswordResetAdmin, AchievmentsAdmin, UsersAchievmentsAdmin,
-    TaskCodeAdmin, LanguageAdmin
-)
+from app.internal.admin_views import setup_admin
 
 
 app = FastAPI(title="CodeLingo API")
 
-data_key = get_admin_key()
-authentication_backend = AdminAuth(secret_key=data_key['secret_key'])   
-admin = Admin(app, engine, authentication_backend=authentication_backend)
 
-# Ниже почистить
-admin.add_view(UserAdmin)
-admin.add_view(UsersStatsAdmin)
-admin.add_view(UsersAchievmentsAdmin)
-admin.add_view(UsersCoursesAdmin)
-admin.add_view(UsersLevelsAdmin)
-admin.add_view(AchievmentsAdmin)
-admin.add_view(CourseAdmin)
-admin.add_view(LevelAdmin)
-admin.add_view(TheoryAdmin)
-admin.add_view(LevelTaskAdmin)
-admin.add_view(TaskAdmin)
-admin.add_view(TaskTypeAdmin)
-admin.add_view(TaskOptionAdmin)
-admin.add_view(TaskGapAdmin)
-admin.add_view(TaskCodeAdmin)
-admin.add_view(TestAdmin)
-admin.add_view(DataTypeAdmin)
-admin.add_view(LanguageAdmin)
-admin.add_view(PasswordResetAdmin)
+setup_admin(app)
 
 
 app.add_middleware(
@@ -53,22 +20,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-google_data = get_google_data()
-oath = OAuth()
-oath.register(
-    name="google_auth",
-    client_id=google_data["google_id"],
-    client_secret=google_data["google_secret"],
-    authorize_url="https://accounts.google.com/o/oauth2/auth",
-    authorize_params=None,
-    access_token_url="https://accounts.google.com/o/oauth2/token",
-    access_token_params=None,
-    refresh_token_url=None,
-    authorize_state=data_key['secret_key'],
-    redirect_uri="http://127.0.0.1:8000/api/auth/google/callback",
-    jwks_uri="https://www.googleapis.com/oauth2/v3/certs",
-    client_kwargs={"scope": "openid profile email"},
-)
 
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(levels.router, prefix="/api/levels", tags=["levels"])
@@ -77,6 +28,7 @@ app.include_router(courses.router, prefix="/api/courses", tags=["courses"])
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(achievments.router, prefix="/api/achievments", tags=["achievments"])
 
+
 @app.get("/")
 async def get_root():
     return {"message": "Hello World"}
@@ -84,3 +36,7 @@ async def get_root():
 @app.api_route("/health", methods=["GET", "HEAD"])
 async def get_health():
     return {"status": "ok"}
+
+@app.get("/robots.txt", include_in_schema=False)
+def robots():
+    return PlainTextResponse("User-agent: *\nDisallow: /")

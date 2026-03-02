@@ -17,5 +17,6 @@ class CodeRequest(BaseModel):
    code: str
 
 class CodeUpdateRequest(BaseModel):
+   code: str
    email: EmailStr
    new_password: str

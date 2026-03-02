@@ -2,19 +2,46 @@ import logging
 
 from sqladmin import ModelView, Admin
 from sqladmin.authentication import AuthenticationBackend
-from fastapi import Request
+from fastapi import Request, FastAPI
 from wtforms import TextAreaField
 from wtforms.widgets import TextArea
 from jose import jwt
 
 from app.core.security import create_jwt_token, get_user_from_token
 from app.core.config import settings
+from app.database.db import engine
 from app.models.models import (
     Courses, Users, Users_Stats, 
     Users_Courses, Users_Levels, Levels, Theories, Level_Tasks, 
     Tasks, Tasks_Types, Tests, Data_Types, Tasks_Options, Tasks_Gap, 
     PasswordResetCode, Achievments, Users_Achievments, Languages, Tasks_Code
 )
+
+
+def setup_admin(app: FastAPI):
+    authentication_backend = AdminAuth(secret_key=settings.SECRET_KEY)  
+    admin = Admin(app, engine, authentication_backend=authentication_backend)
+
+    # Ниже почистить
+    admin.add_view(UserAdmin)
+    admin.add_view(UsersStatsAdmin)
+    admin.add_view(UsersAchievmentsAdmin)
+    admin.add_view(UsersCoursesAdmin)
+    admin.add_view(UsersLevelsAdmin)
+    admin.add_view(AchievmentsAdmin)
+    admin.add_view(CourseAdmin)
+    admin.add_view(LevelAdmin)
+    admin.add_view(TheoryAdmin)
+    admin.add_view(LevelTaskAdmin)
+    admin.add_view(TaskAdmin)
+    admin.add_view(TaskTypeAdmin)
+    admin.add_view(TaskOptionAdmin)
+    admin.add_view(TaskGapAdmin)
+    admin.add_view(TaskCodeAdmin)
+    admin.add_view(TestAdmin)
+    admin.add_view(DataTypeAdmin)
+    admin.add_view(LanguageAdmin)
+    admin.add_view(PasswordResetAdmin)
 
 
 logger = logging.getLogger('admin_actions')
@@ -94,7 +121,7 @@ class AdminAuth(AuthenticationBackend):
         
         try: 
             username = get_user_from_token(token)
-            return username == "admin_codelingo_super"
+            return username == settings.ADMIN_USERNAME
         except jwt.JWTError:
             return False
 
@@ -151,12 +178,21 @@ class AchievmentsAdmin(LoggingMixin, ModelView, model=Achievments):
     column_searchable_list = [Achievments.title]
 
 class UserAdmin(LoggingMixin, ModelView, model=Users):
-    column_list = [Users.id, Users.username, Users.email, Users.picture_link, Users.is_active, Users.created_at, Users.updated_at, Users.deleted_at]
+    column_exclude_list = [Users.hashed_password, Users.stats, Users.levels, Users.courses, Users.achievments]
     name = "User"
     name_plural = "Users"
     icon = "fa-solid fa-user"
 
-    form_excluded_columns = [Users.hashed_password, Users.updated_at, Users.created_at, Users.deleted_at, Users.stats, Users.levels, Users.courses, Users.achievments]
+    column_formatters = {
+        Users.picture_link: lambda m, a: (
+            m.picture_link[:20] + "..." if m.picture_link and len(m.picture_link) > 20
+            else m.picture_link or ""
+        )
+    }
+
+    form_excluded_columns = [Users.hashed_password, Users.updated_at, Users.created_at, 
+                             Users.deleted_at, Users.stats, Users.levels, Users.courses, 
+                             Users.achievments, Users.google_id, Users.auth_provider]
     form_ajax_refs = {
         "stats" : {
             "fields": ("id", "user_id"),
@@ -169,7 +205,7 @@ class UserAdmin(LoggingMixin, ModelView, model=Users):
     }
 
     column_searchable_list = [Users.username, Users.email]
-    column_sortable_list = [Users.created_at, Users.username]
+    column_sortable_list = [Users.created_at, Users.username, Users.auth_provider]
     column_default_sort = [(Users.created_at, False)]
 
 class UsersStatsAdmin(LoggingMixin, ModelView, model=Users_Stats):        #last-activity убрать или нет

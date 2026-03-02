@@ -32,6 +32,10 @@ class Settings(BaseSettings):
     CLOUDINARY_API_SECRET: str
 
     RESEND_API_KEY: str
+    RESEND_FROM: str
+
+    MOBILE_APP_REDIRECT_URL: str
+
     
     model_config = SettingsConfigDict(
         env_file=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".env")

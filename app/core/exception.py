@@ -57,3 +57,6 @@ class InvalidCodeError(AppError):
 
 class NoneDataToUpdate(AppError):
     pass
+
+class GoogleAuthError(AppError):
+    pass
