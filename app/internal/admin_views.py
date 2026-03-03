@@ -174,6 +174,18 @@ class AchievmentsAdmin(LoggingMixin, ModelView, model=Achievments):
     name = "Achievment"
     name_plural = "Achievments"
 
+    form_overrides = {
+        "description": CustomTextAreaField
+    }
+    
+    form_widget_args = {
+        'description': {
+            'rows': 5,      # Количество строк
+            'style': 'width: 100%',  # Ширина
+            'class': 'form-control'  # CSS класс
+        }
+    }
+
     form_excluded_columns = [Achievments.updated_at, Achievments.user_achievments]
     column_searchable_list = [Achievments.title]
 
@@ -337,6 +349,10 @@ class TaskAdmin(LoggingMixin, ModelView, model=Tasks):
             m.description[:40] + "..." if m.description and len(m.description) > 40
             else m.description or ""
         )
+    }
+
+    form_overrides = {
+        "description": CustomTextAreaField
     }
     
     form_widget_args = {
