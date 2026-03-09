@@ -261,8 +261,8 @@ class Languages(Base):
 class Tasks_Code(Base):
     id: Mapped[int_pk]
     task_id: Mapped[int] = mapped_column(ForeignKey("tasks.id", ondelete="CASCADE"), nullable=False)
-    template: Mapped[str] = mapped_column(String, nullable=False)
-    func_name: Mapped[str] = mapped_column(String(80), nullable=False)
+    template: Mapped[str] = mapped_column(String, nullable=True)
+    func_name: Mapped[str] = mapped_column(String(80), nullable=True)
     language_id: Mapped[int] = mapped_column(ForeignKey("languages.id"), nullable=False)
 
     task: Mapped["Tasks"] = relationship("Tasks", back_populates="code")
@@ -274,7 +274,7 @@ class Tasks_Code(Base):
         )
 
     def __str__(self):
-        return self.func_name
+        return str(self.id) # что-то сделать для лучшего отображения
 
 
 class Tasks_Options(Base):

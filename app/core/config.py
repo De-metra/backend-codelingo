@@ -35,6 +35,8 @@ class Settings(BaseSettings):
     RESEND_FROM: str
 
     MOBILE_APP_REDIRECT_URL: str
+    
+    WANDBOX_URL: str
 
     
     model_config = SettingsConfigDict(
@@ -55,6 +57,7 @@ def get_auth_data():
 
 def get_admin_key():
     return {"secret_key": settings.ADMIN_SECRET_KEY}
+
 
 def get_google_data():
     return {'google_id': settings.GOOGLE_CLIENT_ID, 'google_secret': settings.GOOGLE_CLIENT_SECRET}

@@ -90,3 +90,13 @@
 2026-03-02 15:25:08 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: PasswordResetCode - ID: 14
 2026-03-02 15:25:12 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: PasswordResetCode - ID: 15
 2026-03-02 15:25:12 - admin_actions - INFO - ADMIN_ACTION - DELETE - Model: PasswordResetCode - ID: 16
+2026-03-03 19:05:43 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tasks - ID: 8 - Details: Form data: {'type_rel': '3', 'title': 'Напишите программу', 'description': 'Выведите на экран друг за другом три имени: Robert, Stannis, Renly. В результате на экране должно отобразиться:\r\nRobert\r\nStannis\r\nRenly\r\nДля каждого имени используйте свой собственный вызов print().', 'hint': ''}
+2026-03-03 19:05:54 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tasks_Code - ID: 5 - Details: Form data: {'task': '8', 'language': '1', 'template': '', 'func_name': ''}
+2026-03-03 19:22:21 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Data_Types - ID: 5 - Details: Form data: {'name': 'null'}
+2026-03-03 19:22:53 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Data_Types - ID: 5 - Details: Form data: {'name': 'None'}
+2026-03-03 19:23:40 - admin_actions - INFO - ADMIN_ACTION - CREATE - Model: Tests - ID: 9 - Details: Form data: {'code': '5', 'input_type': '5', 'output_type': '2', 'input_data': '""', 'expected_output_data': 'Robert\\nStannis\\nRenly'}
+2026-03-04 20:39:56 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tests - ID: 9 - Details: Form data: {'code': '5', 'input_type': '5', 'output_type': '2', 'input_data': '""', 'expected_output_data': 'Robert'}
+2026-03-04 20:40:01 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tests - ID: 9 - Details: Form data: {'code': '5', 'input_type': '5', 'output_type': '2', 'input_data': '""', 'expected_output_data': 'Robert'}
+2026-03-04 20:41:02 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tests - ID: 9 - Details: Form data: {'code': '5', 'input_type': '5', 'output_type': '2', 'input_data': '""', 'expected_output_data': '"Robert\\nStannis\\nRenly"'}
+2026-03-04 20:44:46 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tests - ID: 9 - Details: Form data: {'code': '5', 'input_type': '5', 'output_type': '2', 'input_data': '""', 'expected_output_data': 'Robert\r\nStannis\r\nRenly'}
+2026-03-09 13:40:06 - admin_actions - INFO - ADMIN_ACTION - UPDATE - Model: Tasks_Code - ID: 4 - Details: Form data: {'task': '7', 'language': '2', 'template': 'function sum_numbers(a,b,c) { \r\n    // напишите код здесь\r\n}\r\n', 'func_name': 'sum_numbers'}

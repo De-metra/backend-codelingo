@@ -1,12 +1,9 @@
-from datetime import datetime, timedelta
-from fastapi import HTTPException
+from typing import Any, Dict
 
-from app.core.security import verify_password, get_password_hash, create_jwt_token
-from app.models.models import Users, Users_Stats, PasswordResetCode, Users_Levels, Users_Courses
-from app.schemas.level import LevelBaseReturn, LevelStatusReturn, LevelReturn, TheoryReturn
+from app.models.models import Tasks
 from app.schemas.task import TaskBase, TaskAnswer
 from app.utils.uow import IUnitOfWork
-from app.core.exception import *
+from app.core.exception import LevelNotFoundError, TaskNotFoundError
 from app.executors.base import ExecutorRegistry
 
 
@@ -16,21 +13,19 @@ class TaskService():
         self.executor_registry = executor_registry
 
 
-    async def get_level_tasks(self, level_id: int):
+    async def get_level_tasks(self, level_id: int) -> Dict[str, Any]:
         async with self.uow:
             level = await self.uow.level.get_by_id(level_id)
-
             if not level:
                 raise LevelNotFoundError()
             
             tasks = await self.uow.task.get_by_level(level_id)
-
             if not tasks:
                 raise TaskNotFoundError()
             
             tasks_data = []
             for t in tasks:
-                task_info = {       #ПОД PYDANTIC???/
+                task_info = {       # ПОД PYDANTIC???
                     "task_id": t.id,
                     "title": t.title,
                     "description": t.description,
@@ -67,10 +62,10 @@ class TaskService():
                     ]
                 tasks_data.append(task_info)
 
-            return {"level_id": level_id, "tasks" : tasks_data}
+            return {"level_id": level_id, "tasks": tasks_data}
         
 
-    async def get_task_by_id(self, task_id: int):
+    async def get_task_by_id(self, task_id: int) -> TaskBase:
         async with self.uow:
             task = await self.uow.task.get_by_id(task_id)
 
@@ -86,7 +81,7 @@ class TaskService():
             )
         
 
-    async def get_task_hint(self, task_id: int):
+    async def get_task_hint(self, task_id: int) -> Dict[str, Any]:
         async with self.uow:
             hint = await self.uow.task.get_task_hint(task_id=task_id)
 
@@ -96,43 +91,51 @@ class TaskService():
     async def submit_task(self, task_id: int, user_id: int, answer_data: TaskAnswer):
         async with self.uow:
             task = await self.uow.task.get_by_id(task_id)
-
             if not task:
                 raise TaskNotFoundError()
             
-            task_type = task.type_rel.name
+            
+            return await self._verify_answer(task, answer_data)
+
+
+    async def _verify_answer(self, task: Tasks, answer_data: TaskAnswer) -> Dict[str, Any]:
+        task_type = task.type_rel.name
+
             # "answers": [1, 3]
-            if task_type == "choice":
-                options = await self.uow.task.get_task_options_by_id(task_id)
+        if task_type == "choice":
+            options = await self.uow.task.get_task_options_by_id(task.id)
 
-                correct_ids = {o.id for o in options if o.is_correct}
-                users_ids = set(answer_data.answers)
+            correct_ids = {o.id for o in options if o.is_correct}
+            users_ids = set(answer_data.answers)
 
-                is_correct = users_ids == correct_ids
-                return {"is_correct": is_correct, "correct_options": list(correct_ids)}
-            # "answers": ["def", "return x + y"]
-            elif task_type == "gap":
-                gaps = await self.uow.task.get_task_gaps_by_id(task_id)
+            is_correct = users_ids == correct_ids
+            return {"is_correct": is_correct, "correct_options": list(correct_ids)}
+        
+        # "answers": ["def", "return x + y"]
+        elif task_type == "gap":
+            gaps = await self.uow.task.get_task_gaps_by_id(task.id)
 
-                correct_answers = [g.answer.strip().lower() for g in gaps]
-                user_answers = [a.strip().lower() for a in answer_data.answers]
+            correct_answers = [g.answer.strip().lower() for g in gaps]
+            user_answers = [a.strip().lower() for a in answer_data.answers]
 
-                is_correct = correct_answers == user_answers
-                return {"is_correct": is_correct, "correct_answers": correct_answers}
-            # "answers": "def add(x, y):
-            #                       return x+y"
-            #              {
-            #     "answers": "function sum(a,b,c) {\n    return a+b+c\n}"
-            # } 
-            elif task_type == "code":
-                code_data = await self.uow.task.get_task_code_by_id(task_id)
-                tests = await self.uow.task.get_task_tests_by_code_id(code_data.id)
+            is_correct = correct_answers == user_answers
+            return {"is_correct": is_correct, "correct_answers": correct_answers}
+        
+        # "answers": "def add(x, y):
+        #                       return x+y"
+        #              {
+        #     "answers": "function sum(a,b,c) {\n    return a+b+c\n}"
+        # } 
+        elif task_type == "code":
+            code_data = await self.uow.task.get_task_code_by_id(task.id)
+            tests = await self.uow.task.get_task_tests_by_code_id(code_data.id)
 
-                executor = self.executor_registry.get(code_data.language.language)
-                result = await executor.execute(
-                    user_code=answer_data.answers,
-                    tests=tests,
-                    func_name=code_data.func_name
-                )
-                return result 
+            executor = self.executor_registry.get(code_data.language.language)
+
+            return await executor.execute(
+                user_code=answer_data.answers,
+                language=code_data.language.language,
+                func_name=code_data.func_name,
+                tests=tests
+            )
 

@@ -382,6 +382,18 @@ class TestAdmin(LoggingMixin, ModelView, model=Tests):
 
     form_excluded_columns = [Tests.updated_at]
 
+    form_overrides = {
+        "expected_output_data": CustomTextAreaField
+    }
+    
+    form_widget_args = {
+        'expected_output_data': {
+            'rows': 5,      # Количество строк
+            'style': 'width: 100%',  # Ширина
+            'class': 'form-control'  # CSS класс
+        }
+    }
+
     column_searchable_list = [Tests.input_data, Tests.expected_output_data]
 
 class DataTypeAdmin(LoggingMixin, ModelView, model=Data_Types):

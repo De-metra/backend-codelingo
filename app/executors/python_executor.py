@@ -1,108 +1,82 @@
-import asyncio
 import json
-import traceback
-from types import MappingProxyType
+import asyncio
+from pyston import PystonClient, File
+from pyston.models import Output
 
 from app.executors.base import BaseExecutor
 from app.models.models import Tests
+from app.core.config import settings
 
 
-class PythonExexcutor(BaseExecutor):
+class PythonExecutor(BaseExecutor):
     def __init__(self, timeout: int = 2):
         self.timeout = timeout
+        self.client = PystonClient(base_url=settings.PISTON_URL)
 
-    async def execute(self, user_code: str, tests: list[Tests], func_name: str) -> dict:
-        try:
-            compiled_code = self._compile_user_code(user_code, func_name)
-        except Exception as e:
-            return {
-                "is_correct": False,
-                "error": "SyntaxError",
-                "details": str(e),
-            }
-        
+
+    async def execute(self, user_code: str, tests: list[Tests], func_name: str | None = None) -> dict:
         for test in tests:
-            try:
-                result = await self._run_single_test(compiled_code, test)
-            except Exception as e:
-                return {
-                    "is_correct": False,
-                    "error": "RuntimeError",
-                    "details": str(e),
-                }
+            # Формируем код. Если есть имя функции — вызываем её и ПРИНТУЕМ результат.
+            # Если имени функции нет — просто запускаем код как есть.
+            full_code = self._prepare_code(user_code, test, func_name)
 
+            output = await self.client.execute("python", [File(f"{full_code}")])
+ 
+            # Проверяем результат
+            result = self._verify(output, test)
             if not result["passed"]:
                 return {
                     "is_correct": False,
-                    "failed_test": result,
+                    "failed_test": result
                 }
 
-        return {"is_correct": True}
-
-
-
-    def _compile_user_code(seld, code: str, func_name: str):
-        safe_globals = {
-            "__builtins__": MappingProxyType({
-                "range": range,
-                "len": len,
-                "print": print,
-                "int": int,
-                "str": str,
-                "float": float,
-                "bool": bool,
-                "list": list,
-                "dict": dict,
-                "set": set,
-                "sum": sum,
-                "min": min,
-                "max": max,
-            })
-        }
-
-        local_env = {}
-
-        exec(code, safe_globals, local_env)
-
-        if func_name not in local_env:
-            raise ValueError(f"Функция {func_name} не найдена")
+        return {"is_correct": True} 
+    
         
-        function = local_env[func_name]
+    def _prepare_code(self, user_code: str, test: Tests, func_name: str) -> str:
+        if func_name:
+            # Сценарий для функций 
+            input_data = test.input_data
+            return f"""
+                {user_code}
 
-        if not callable(function):
-            raise ValueError(f"'{func_name}' не является функцией")
-
-        return function
+                import json
+                try:
+                    # Вызываем функцию и печатаем её результат в stdout
+                    args = json.loads('{input_data}')
+                    result = {func_name}(*args)
+                    print(json.dumps(result))
+                except Exception as e:
+                    import sys
+                    print(f"Runtime Error: {{e}}", file=sys.stderr)
+                    exit(1)
+                """
+        else:
+            # Сценарий для принтов
+            return user_code
+        
+    def normalize_string(self, s: str) -> str:
+        if s is None:
+            return ""
+        # 1. Заменяем Windows-переносы на Linux-переносы
+        # 2. Убираем пробелы в начале и конце всей строки
+        return s.replace("\r\n", "\n").replace("\r", "\n").strip()
     
     
-    async def _run_single_test(self, solution, test: Tests) -> dict:
-        input_args = json.loads(test.input_data)
-        expected = json.loads(test.expected_output_data)
+    def _verify(self, output: Output, test: Tests) -> dict:
+        # Убираем лишние пробелы и переносы строк в начале/конце
+        got = output.run_stage.stdout.strip()
+        expected = test.expected_output_data.strip()
 
-        if not isinstance(input_args, list):
-            input_args = [input_args]
+        normalized_got = self.normalize_string(got)
+        normalized_expected = self.normalize_string(expected)
 
-        try:
-            result = await asyncio.wait_for(
-                self._call_solution(solution, input_args),
-                timeout=self.timeout,
-            )
-        except asyncio.TimeoutError:
-            return {
-                "passed": False,
-                "error": "Timeout"
-            }
-        
         return {
-            "passed": result == expected,
-            "input": input_args,
+            "passed": normalized_got == normalized_expected,
+            "input": output.run_stage.stdrr if output.run_stage.code != 0 else None,
             "expected": expected,
-            "got": result,
+            "got": got
         }
+    
 
-
-    async def _call_solution(self, solution, args):
-        """
-        Асинхронный вызов пользовательской функции
-        """
-        return solution(*args)
+    

@@ -1,36 +1,34 @@
-import asyncio
 import json
-import tempfile
-import os
-import subprocess
+from pyston import PystonClient, File
+from pyston.models import Output
 from app.executors.base import BaseExecutor
 from app.models.models import Tests
-
+from app.core.config import settings
 
 class JavaScriptExecutor(BaseExecutor):
     def __init__(self, timeout: int = 2):
         self.timeout = timeout
+        self.client = PystonClient(base_url=settings.PISTON_URL) # Инициализируем клиента Piston
 
-    async def execute(self, user_code: str, tests: list[Tests], func_name: str) -> dict:
-        try:
-            js_file_path = self._prepare_js_file(user_code, func_name)
-        except Exception as e:
-            return {
-                "is_correct": False,
-                "error": "CompileError",
-                "details": str(e),
-            }
-
+    async def execute(self, user_code: str, tests: list[Tests], func_name: str = None) -> dict:
         for test in tests:
             try:
-                result = await self._run_single_test(js_file_path, test, func_name)
+                # 1. Формируем код для отправки в Piston
+                full_code = self._prepare_code(user_code, test, func_name)
+
+                # 2. Выполняем через Piston API
+                # "*" заставит Piston выбрать последнюю доступную версию Node.js
+                output = await self.client.execute("javascript", [File(f"{full_code}")])
             except Exception as e:
                 return {
                     "is_correct": False,
-                    "error": "RuntimeError",
+                    "error": "ExecutorError",
                     "details": str(e),
                 }
 
+            # 3. Проверяем результат выполнения конкретного теста
+            result = self._process_output(output, test, is_function=(func_name is not None))
+            
             if not result["passed"]:
                 return {
                     "is_correct": False,
@@ -39,77 +37,60 @@ class JavaScriptExecutor(BaseExecutor):
 
         return {"is_correct": True}
 
-    def _prepare_js_file(self, user_code: str, func_name: str) -> str:
-        wrapper = f"""
-            {user_code}
+    def _prepare_code(self, user_code: str, test: Tests, func_name: str) -> str:
+        if func_name:
+            # Сценарий для ФУНКЦИЙ: оборачиваем в try-catch и вызываем
+            return f"""
+                {user_code}
 
-            try {{
-                const input = JSON.parse(process.argv[2]);
-
-                if (typeof {func_name} !== "function") {{
-                    throw new Error("Function '{func_name}' not found");
+                try {{
+                    const args = {test.input_data}; // input_data это JSON-строка типа "[1, 2]"
+                    if (typeof {func_name} !== 'function') {{
+                        throw new Error("Function '{func_name}' is not defined");
+                    }}
+                    const result = {func_name}(...(Array.isArray(args) ? args : [args]));
+                    console.log(JSON.stringify(result));
+                }} catch (err) {{
+                    console.error(err.message);
+                    process.exit(1);
                 }}
+                """
+        else:
+            # Сценарий для ПРИНТОВ: просто запускаем код пользователя
+            return user_code
 
-                const result = {func_name}(...input);
-                console.log(JSON.stringify(result));
-            }} catch (err) {{
-                console.error(err.toString());
-                process.exit(1);
-            }}
-            """
-        tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".js")
-        tmp_file.write(wrapper.encode())
-        tmp_file.close()
-        return tmp_file.name
+    def _process_output(self, output: Output, test: Tests, is_function: bool) -> dict:
+        expected_raw = test.expected_output_data.strip()
+        stdout = output.run_stage.stdout
+        stderr = output.run_stage.stdrr
 
-
-    async def _run_single_test(self, js_file_path: str, test: Tests, func_name: str) -> dict:
-        input_args = json.loads(test.input_data)
-        expected = json.loads(test.expected_output_data)
-
-        if not isinstance(input_args, list):
-            input_args = [input_args]
-
-        process = await asyncio.create_subprocess_exec(
-            "node",
-            js_file_path,
-            json.dumps(input_args),
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-
-        try:
-            stdout, stderr = await asyncio.wait_for(
-                process.communicate(),
-                timeout=self.timeout
-            )
-        except asyncio.TimeoutError:
-            process.kill()
-            return {
-                "passed": False,
-                "error": "Timeout"
-            }
-
-        if process.returncode != 0:
+        # Если код завершился с ошибкой (например, SyntaxError или наш process.exit(1))
+        if output.run_stage.code != 0 or stderr:
             return {
                 "passed": False,
                 "error": "RuntimeError",
-                "details": stderr.decode() or "JS process crashed"
+                "details": stderr or "Unknown JS error"
             }
 
-        try:
-            result = json.loads(stdout.decode())
-        except Exception as e:
-            return {
-                "passed": False,
-                "error": "RuntimeError",
-                "details": f"Invalid JSON output: {stdout.decode()}"
-            }
+        if is_function:
+            # Для функций мы сравниваем как объекты (JSON)
+            try:
+                got_obj = json.loads(stdout)
+                expected_obj = json.loads(expected_raw)
+                passed = (got_obj == expected_obj)
+                got_val = got_obj
+            except:
+                # Если вдруг в консоль нападало лишнего и JSON не парсится
+                passed = (stdout == expected_raw)
+                got_val = stdout
+        else:
+            # Для простых задач на вывод сравниваем просто строки
+            passed = (stdout == expected_raw)
+            got_val = stdout
 
         return {
-            "passed": result == expected,
-            "input": input_args,
-            "expected": expected,
-            "got": result,
+            "passed": passed,
+            "input": test.input_data,
+            "expected": expected_raw,
+            "got": got_val,
         }
-
