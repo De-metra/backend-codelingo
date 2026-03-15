@@ -154,10 +154,6 @@ class UserService(BaseService):
             course_id_obj = await self.uow.user_course.get_user_course_id(user_id)
 
             if not course_id_obj:
-                raise CourseNotFoundError()
+                return {"course_id": None} 
             
             return {"course_id": course_id_obj.course_id}
-
-
-
-#model_config = ConfigDict(from_attributes=True)
