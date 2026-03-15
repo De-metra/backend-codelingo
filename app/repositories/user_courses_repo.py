@@ -50,3 +50,9 @@ class UserCourseRepository(Repository):
             .where(Users_Courses.user_id == user_id)
         )
         return stmt.scalar_one_or_none()
+    
+    async def get_user_course_id(self, user_id: int):
+        stmt = await self.session.execute(
+            select(Users_Courses).where(Users_Courses.user_id == user_id)
+        )
+        return stmt.scalar_one_or_none()

@@ -37,7 +37,7 @@ async def handle_code(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
     
 
-@router.post("/register/")
+@router.post("/register/", status_code=201)
 async def register(
     user_in: UserRegister, 
     auth_service: AuthService = Depends(get_auth_service)

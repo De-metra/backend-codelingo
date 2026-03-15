@@ -9,32 +9,35 @@ from app.utils.uow import IUnitOfWork, UnitOfWork
 from app.executors import base, wandbox_executor
 
 
+def get_uow():
+    return UnitOfWork()
+
 async def get_executor_registry():
     registy = base.ExecutorRegistry()
     registy.register("python", wandbox_executor.WandboxExecutor())
     registy.register("javascript", wandbox_executor.WandboxExecutor())
     return registy
 
-async def get_achievment_service(uow: IUnitOfWork = Depends(UnitOfWork)) -> AchievmentsService:
+async def get_achievment_service(uow: IUnitOfWork = Depends(get_uow)) -> AchievmentsService:
     return AchievmentsService(uow)
 
-async def get_auth_service(uow: IUnitOfWork = Depends(UnitOfWork)) -> AuthService:
+async def get_auth_service(uow: IUnitOfWork = Depends(get_uow)) -> AuthService:
     return AuthService(uow)
 
-async def get_level_service(uow: IUnitOfWork = Depends(UnitOfWork)) -> LevelService:
+async def get_level_service(uow: IUnitOfWork = Depends(get_uow)) -> LevelService:
     return LevelService(uow)
 
-async def get_course_service(uow: IUnitOfWork = Depends(UnitOfWork)) -> CourseService:
+async def get_course_service(uow: IUnitOfWork = Depends(get_uow)) -> CourseService:
     return CourseService(uow)
 
-async def get_user_service(uow: IUnitOfWork = Depends(UnitOfWork)) -> UserService:
+async def get_user_service(uow: IUnitOfWork = Depends(get_uow)) -> UserService:
     return UserService(uow)
 
-async def get_task_service(uow: IUnitOfWork = Depends(UnitOfWork)) -> TaskService:
+async def get_task_service(uow: IUnitOfWork = Depends(get_uow)) -> TaskService:
     return TaskService(uow)
 
 async def get_task_service(
-    uow: IUnitOfWork = Depends(UnitOfWork),
+    uow: IUnitOfWork = Depends(get_uow),
     executor_registry = Depends(get_executor_registry)
 ) -> TaskService:
     return TaskService(uow, executor_registry)

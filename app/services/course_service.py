@@ -6,7 +6,7 @@ from app.models.models import Users, Users_Courses, PasswordResetCode
 from app.schemas.course import CourseReturn
 from app.schemas.email import CodeUpdateRequest
 from app.utils.uow import IUnitOfWork
-from app.core.exception import *
+from app.core.exception import NotFoundError, AlreadyExistsError
 
 
 class CourseService():

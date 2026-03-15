@@ -26,4 +26,8 @@ class CourseRepository(Repository):
             )
         return stmt.scalar_one_or_none()
     
+    async def add(self, data: Courses):
+        self.session.add(data)
+        return data
+    
     

@@ -3,8 +3,9 @@ from datetime import datetime, timedelta
 from app.schemas.level import LevelBaseReturn, LevelStatusReturn, LevelReturn, TheoryReturn
 from app.utils.uow import IUnitOfWork
 from app.core.exception import (
-    LevelAlreadyCompletedError, LevelNotFoundError,
-    TheoryNotFoundError, XpNotFoundError, UserNotFoundError
+    LevelAlreadyCompletedError, NotFoundError,
+    TheoryNotFoundError, XpNotFoundError, UserNotFoundError,
+    LevelNotFoundError
 )
 
 
@@ -35,7 +36,7 @@ class LevelService():
             level = await self.uow.level.get_by_id(level_id)
 
             if not level:
-                raise LevelNotFoundError()
+                raise NotFoundError()
             
             is_complited = await self.uow.user_levels.is_completed(level_id, user_id)
 
@@ -77,7 +78,7 @@ class LevelService():
             level = await self.uow.level.get_by_id(level_id)
 
             if not level:
-                raise LevelNotFoundError()    
+                raise NotFoundError()    
             
             user_level = await self.uow.user_levels.get_or_create(level_id=level_id, user_id=user_id)
 

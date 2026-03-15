@@ -36,6 +36,10 @@ class LevelRepository(Repository):
         stmt = await self.session.execute(select(Levels.xp).where(Levels.id == level_id))
         return stmt.scalar_one_or_none()
     
+    async def add(self, data: Levels):
+        await self.session.add(data)
+        return data
+    
        
 
     

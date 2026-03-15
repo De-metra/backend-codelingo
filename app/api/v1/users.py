@@ -6,7 +6,8 @@ from app.services.user_service import UserService
 from app.utils.dependencies import get_user_service
 from app.core.exception import (
     AppError, StatsNotFoundError,
-    UserNotFoundError, NoneDataToUpdate
+    UserNotFoundError, NoneDataToUpdate,
+    CourseNotFoundError
 )
 
 
@@ -100,4 +101,20 @@ async def soft_delete(
     except AppError as err:
         detail = str(err) or "Bad request"
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
+    
 
+@router.get("/course")
+async def get_users_course(
+    current_user: str = Depends(get_user_from_token), 
+    user_service: UserService = Depends(get_user_service)
+):
+    try:
+        return await user_service.get_user_course(int(current_user))
+    except CourseNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Курс не найден"
+        )
+    except AppError as err:
+        detail = str(err) or "Bad request"
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err

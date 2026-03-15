@@ -12,7 +12,7 @@ from app.schemas.user import UserRegister, UserReturn, Stats, UserChangeProfile,
 from app.services.base import BaseService
 from app.models.models import Users, Users_Stats
 from app.utils.uow import IUnitOfWork
-from app.core.exception import *
+from app.core.exception import CourseNotFoundError, StatsNotFoundError, UserNotFoundError, NoneDataToUpdate
 
 class UserService(BaseService):
     def __init__(self, uow: IUnitOfWork):
@@ -149,6 +149,14 @@ class UserService(BaseService):
 
             return {"message": f"Аккаунт {user.username} успешно удалён"}
         
+    async def get_user_course(self, user_id: int):
+        async with self.uow:
+            course_id_obj = await self.uow.user_course.get_user_course_id(user_id)
+
+            if not course_id_obj:
+                raise CourseNotFoundError()
+            
+            return {"course_id": course_id_obj.course_id}
 
 
 

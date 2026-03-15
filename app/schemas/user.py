@@ -8,17 +8,17 @@ import re
 
 class UserBase(BaseModel):
     """Базовая модель пользователя"""
-    username: str = Field(..., min_length=2, max_length=50, example="Робо-кот")
-    email: EmailStr = Field(..., example="codelingo@example.com")
+    username: str = Field(..., min_length=2, max_length=50)
+    email: EmailStr
 
 class UserLogin(BaseModel):
     """Модель для входа (логина)"""
-    email: EmailStr = Field(..., example="user@example.com")
-    password: str = Field(..., example="mypassword123")
+    email: EmailStr
+    password: str 
 
 class UserRegister(UserBase):
     """Модель для регистрации пользователя"""
-    password: str = Field(..., min_length=5, max_length=50, example="mypassword123")
+    password: str = Field(..., min_length=5, max_length=50)
 
 class UserReturn(UserBase):
     """Модель для регистрации пользователя"""
@@ -51,7 +51,7 @@ class UserUpdatedInfo(BaseModel):
     picture_link: Optional[str]
 
 class UserChangePassword(BaseModel):
-    password: str = Field(..., min_length=5, max_length=50, example="mypassword123")
+    password: str = Field(..., min_length=5, max_length=50)
 
 #model_config = ConfigDict(from_attributes=True)
 

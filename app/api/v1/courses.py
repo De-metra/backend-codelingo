@@ -7,8 +7,8 @@ from app.utils.dependencies import get_level_service, get_course_service
 from app.services.course_service import CourseService
 from app.services.level_service import LevelService
 from app.core.exception import (
-    AppError, CourseNotFoundError, 
-    LevelNotFoundError, CourseAlreadyStartedError
+    AppError, CourseAlreadyStartedError,
+    LevelNotFoundError, NotFoundError
 )
 
 
@@ -26,7 +26,7 @@ async def get_course_with_levels(
 ):
     try:
         return await course_servise.get_course_with_levels(course_id)
-    except CourseNotFoundError:
+    except NotFoundError:
         raise HTTPException(status_code=404, detail="Курс не найден")
     except AppError as err:
         detail = str(err) or "Bad request"
@@ -58,7 +58,7 @@ async def start_course(
 ):
     try:
         return await course_service.start_course(course_id=course_id, user_id=int(current_user))
-    except CourseNotFoundError:
+    except NotFoundError:
         raise HTTPException(status_code=404, detail="Курс не найден")
     except CourseAlreadyStartedError:
         raise HTTPException(status_code=400, detail="Курс уже начат") 
