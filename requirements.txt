@@ -23,3 +23,5 @@ cloudinary
 resend
 aiohttp
 aiopyston
+pytest
+pytest-asyncio

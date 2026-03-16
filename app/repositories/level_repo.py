@@ -7,14 +7,20 @@ class LevelRepository(Repository):
 
     async def get_by_course(self, course_id: int):
         '''Получение уровней из курса по id курса'''
-        stmt = await self.session.execute(select(Levels).where(Levels.course_id == course_id))
+        stmt = await self.session.execute(
+            select(Levels)
+            .where(Levels.course_id == course_id)
+            .order_by(Levels.num_in_order)
+        )
         return stmt.scalars().all()
         
     async def get_level_ids_by_course(self, course_id : int):
         '''Получение всех ids уровня из конкретного курса'''
         stmt = await self.session.execute(
             select(Levels.id)
-            .where(Levels.course_id == course_id))
+            .where(Levels.course_id == course_id)
+            .order_by(Levels.num_in_order)
+        )
         return [row[0] for row in stmt.all()]
 
     async def get_by_id(self, id: int):
@@ -39,9 +45,4 @@ class LevelRepository(Repository):
     async def add(self, data: Levels):
         await self.session.add(data)
         return data
-    
-       
-
-    
-
     

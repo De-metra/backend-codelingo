@@ -8,13 +8,15 @@ from app.schemas.schemas import Task
 class LevelStatusReturn(BaseModel):
     id: int
     title: str
+    num_in_order: int
     is_complete: bool
 
 class LevelBaseReturn(BaseModel):
     id: int
     title: str
     description: str | None
-    is_complete: bool
+    num_in_order: int
+    is_complete: bool 
 
 class LevelReturn(LevelStatusReturn):
     description: str

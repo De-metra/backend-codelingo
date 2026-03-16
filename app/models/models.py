@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import func
-from sqlalchemy import ForeignKey, String, DateTime, Boolean, text
+from sqlalchemy import ForeignKey, String, DateTime, Boolean, text, Integer
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from app.database.db import Base, int_pk, str_null_true
@@ -146,6 +146,7 @@ class Levels(Base):
     theory_id: Mapped[int] = mapped_column(ForeignKey("theories.id", ondelete="CASCADE"), nullable=False)
     xp: Mapped[int]
     course_id: Mapped[int] = mapped_column(ForeignKey("courses.id", ondelete="CASCADE"), nullable=True)
+    num_in_order: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
 
     theory: Mapped["Theories"] = relationship("Theories", back_populates="levels")
     tasks: Mapped[list["Level_Tasks"]] = relationship(
@@ -180,7 +181,7 @@ class Level_Tasks(Base):
     id: Mapped[int_pk]
     level_id: Mapped[int] = mapped_column(ForeignKey("levels.id", ondelete="CASCADE"), nullable=False)
     task_id: Mapped[int] = mapped_column(ForeignKey("tasks.id", ondelete="CASCADE"), nullable=False)
-    num_in_order: Mapped[int]
+    num_in_order: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
 
     level: Mapped["Levels"] = relationship("Levels", back_populates="tasks")
     task: Mapped["Tasks"] = relationship("Tasks", back_populates="tasks_link")

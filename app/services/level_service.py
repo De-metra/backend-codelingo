@@ -26,6 +26,7 @@ class LevelService():
                 LevelStatusReturn(
                     id=level.id,
                     title=level.title,
+                    num_in_order=level.num_in_order,
                     is_complete=level.id in completed_ids
                 )
                 for level in levels
@@ -44,6 +45,7 @@ class LevelService():
                 id=level_id,
                 title=level.title,
                 description=level.description or None,
+                num_in_order=level.num_in_order,
                 is_complete=is_complited or False,
             ) 
 
