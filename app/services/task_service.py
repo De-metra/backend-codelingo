@@ -19,20 +19,23 @@ class TaskService():
             if not level:
                 raise LevelNotFoundError()
             
-            tasks = await self.uow.task.get_by_level(level_id)
-            if not tasks:
+            rows_tasks = await self.uow.task.get_by_level(level_id)
+            if not rows_tasks:
                 raise TaskNotFoundError()
             
             tasks_data = []
-            for t in tasks:
+            for t, num in rows_tasks:
+                t_type = t.type_rel.name
+
                 task_info = {       # ПОД PYDANTIC???
                     "task_id": t.id,
                     "title": t.title,
                     "description": t.description,
-                    "task_type": t.type_rel.name
+                    "task_type": t.type_rel.name,
+                    "num_in_order": num
                 }
 
-                t_type = t.type_rel.name
+                
                 if t_type == 'choice':
                     task_info["options"] = [
                         {

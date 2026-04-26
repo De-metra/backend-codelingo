@@ -16,6 +16,11 @@ class CourseReturn(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+
+class UserCourseResponse(BaseModel):
+    course_id: Optional[int] = None
+    course_title: Optional[str] = None
+
 class CourseWithLevels(CourseReturn):
     levels: list[LevelBase]
 

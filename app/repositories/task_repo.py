@@ -18,7 +18,7 @@ class TaskRepository(Repository):
     
     async def get_by_level(self, level_id: int):
         stmt = await self.session.execute(
-            select(Tasks)
+            select(Tasks, Level_Tasks.num_in_order)
             .join(Level_Tasks, Level_Tasks.task_id == Tasks.id)
             .where(Level_Tasks.level_id == level_id)
             .options(
@@ -26,8 +26,9 @@ class TaskRepository(Repository):
                 selectinload(Tasks.options),        # Задача: выбор ответа из списка
                 selectinload(Tasks.gaps)       # Задача: пропуски
             )
+            .order_by(Level_Tasks.num_in_order)
         )
-        return stmt.scalars().all()
+        return stmt.all()
     
     async def get_task_hint(self, task_id: int):
         stmt = await self.session.execute(

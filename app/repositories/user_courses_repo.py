@@ -1,6 +1,6 @@
 from app.repositories.base import Repository
 from app.models.models import Courses, Users_Courses, Levels
-from sqlalchemy import select, update, and_, insert
+from sqlalchemy import desc, select, update, and_, insert
 from sqlalchemy.orm import selectinload
 
 
@@ -51,8 +51,11 @@ class UserCourseRepository(Repository):
         )
         return stmt.scalar_one_or_none()
     
-    async def get_user_course_id(self, user_id: int):
+    async def get_user_course(self, user_id: int):
         stmt = await self.session.execute(
             select(Users_Courses).where(Users_Courses.user_id == user_id)
+            .options(selectinload(Users_Courses.course))
+            .order_by(desc(Users_Courses.updated_at))
+            .limit(1)
         )
         return stmt.scalar_one_or_none()

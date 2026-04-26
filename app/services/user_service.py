@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.db import get_async_session
 from app.database.db import async_session_maker
 from app.core.cloudinary import upload_image
+from app.schemas.course import UserCourseResponse
 from app.schemas.user import UserRegister, UserReturn, Stats, UserChangeProfile, UserUpdatedInfo
 from app.services.base import BaseService
 from app.models.models import Users, Users_Stats
@@ -149,11 +150,11 @@ class UserService(BaseService):
 
             return {"message": f"Аккаунт {user.username} успешно удалён"}
         
-    async def get_user_course(self, user_id: int):
+    async def get_user_course(self, user_id: int) -> UserCourseResponse:
         async with self.uow:
-            course_id_obj = await self.uow.user_course.get_user_course_id(user_id)
+            user_course = await self.uow.user_course.get_user_course(user_id)
 
-            if not course_id_obj:
-                return {"course_id": None} 
+            if not user_course:
+                return UserCourseResponse(course_id=None, course_title=None) 
             
-            return {"course_id": course_id_obj.course_id}
+            return UserCourseResponse(course_id=user_course.course_id, course_title=user_course.course.title)

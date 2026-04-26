@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from app.models.models import Users_Stats
 from app.schemas.level import LevelBaseReturn, LevelStatusReturn, LevelReturn, TheoryReturn
 from app.utils.uow import IUnitOfWork
 from app.core.exception import (
@@ -52,7 +53,6 @@ class LevelService():
     async def get_level_theory(self, level_id: int):
         async with self.uow:
             theory = await self.uow.level.get_level_theory(level_id)
-            print(theory)
 
             if not theory:
                 raise TheoryNotFoundError()
@@ -72,7 +72,7 @@ class LevelService():
         
     async def complete_level(self, level_id: int, user_id: int):
         async with self.uow:
-            user_with_info = await self.uow.user.get_user_with_stats_and_levels(user_id)
+            user_with_info = await self.uow.user.get_user_with_stats_and_levels(user_id) # хачем?
 
             if not user_with_info:
                 raise UserNotFoundError()
@@ -92,37 +92,51 @@ class LevelService():
             stats = await self.uow.user_stats.get_or_create(user_id)
             stats.total_xp += level.xp
 
-            #streak
-            now = datetime.now().date()
-            last_activity = stats.last_activity.date() if stats.last_activity else None
+            new_stats = self._update_user_streak(stats)
 
-            if last_activity == now - timedelta(days=1):
-                stats.streak += 1
-            elif last_activity == now:
-                pass
-            else:
-                stats.streak = 1
-
-            stats.last_activity = datetime.now()
-
-            #прогресс курса
-            course_id = level.course_id
-            level_ids = await self.uow.level.get_level_ids_by_course(course_id)
-            completed_ids = await self.uow.user_levels.get_completed_ids_by_course(user_id=user_id, level_ids=level_ids)
-            progress_percent = round(len(completed_ids) / len(level_ids) * 100, 2)
-
-            users_course = await self.uow.user_course.get_or_create(course_id=course_id, user_id=user_id)
-
-            users_course.progress = progress_percent
-            if progress_percent >= 100:
-                users_course.is_complete = True
+            progress_percent = await self._calculate_course_progress(user_id=user_id, course_id=level.course_id)
 
             await self.uow.commit()
 
             return {
                 "message": f"Урок id:{level_id} завершён",
                 "xp_added": level.xp,
-                "total_xp": stats.total_xp,
-                "streak": stats.streak,
+                "total_xp": new_stats.total_xp,
+                "streak": new_stats.streak,
                 "course_progress": progress_percent
             }
+    
+
+
+    def _update_user_streak(self, stats: Users_Stats) -> Users_Stats:
+        now = datetime.now().date()
+        last_activity = stats.last_activity.date() if stats.last_activity else None
+
+        if last_activity == now - timedelta(days=1):
+            stats.streak += 1
+        elif last_activity == now:
+            pass
+        else:
+            stats.streak = 1
+
+        stats.last_activity = datetime.now()
+
+        return stats
+    
+
+    async def _calculate_course_progress(self, user_id, course_id) -> float:
+        level_ids = await self.uow.level.get_level_ids_by_course(course_id)
+
+        if not level_ids:
+            return 0.0
+        completed_ids = await self.uow.user_levels.get_completed_ids_by_course(user_id=user_id, level_ids=level_ids)
+        progress_percent = round(len(completed_ids) / len(level_ids) * 100, 2)
+
+        users_course = await self.uow.user_course.get_or_create(course_id=course_id, user_id=user_id)
+
+        users_course.progress = progress_percent
+        if progress_percent >= 100:
+            users_course.is_complete = True
+
+        return progress_percent
+        
