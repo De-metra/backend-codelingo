@@ -40,16 +40,14 @@ class TaskService():
                     task_info["options"] = [
                         {
                             "id": o.id,
-                            "text": o.text,
-                            "is_correct": o.is_correct
+                            "text": o.text
                         }
                         for o in t.options
                     ]
                 elif t_type == 'gap':
                     task_info["gaps"] = [
                         {
-                            "template": g.template,
-                            "answer": g.answer
+                            "template": g.template
                         }
                         for g in t.gaps
                     ]
@@ -59,7 +57,7 @@ class TaskService():
                             "id": c.id,
                             "func_name": c.func_name,
                             "template": c.template,
-                            "language": c.language
+                            "language": c.language.language
                         }
                         for c in t.code
                     ]

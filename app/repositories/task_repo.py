@@ -24,7 +24,8 @@ class TaskRepository(Repository):
             .options(
                 selectinload(Tasks.type_rel),      # Тип задачи
                 selectinload(Tasks.options),        # Задача: выбор ответа из списка
-                selectinload(Tasks.gaps)       # Задача: пропуски
+                selectinload(Tasks.gaps),       # Задача: пропуски
+                selectinload(Tasks.code).selectinload(Tasks_Code.language)     
             )
             .order_by(Level_Tasks.num_in_order)
         )
