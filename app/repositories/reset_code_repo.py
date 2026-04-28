@@ -1,29 +1,20 @@
 from datetime import datetime
+from typing import Optional
 
-from app.repositories.base import Repository
+from sqlalchemy import select, and_
+
+from app.repositories.base import SQLAlchemyRepository
 from app.models.models import PasswordResetCode
-from sqlalchemy import select, update, and_, insert
-from sqlalchemy.orm import selectinload
-from app.core.security import verify_password, get_password_hash
 
 
-class ResetCodeRepository(Repository):  
+class ResetCodeRepository(SQLAlchemyRepository):
     model = PasswordResetCode
-
-    async def create(self, user_id: int, code: str, expires_at: datetime):
-        reset_code = PasswordResetCode(
-            user_id=user_id,
-            code=code,
-            expires_at=expires_at,
-            is_used=False,
-        )
-        self.session.add(reset_code)
-        return reset_code
     
-    async def add(self, data: PasswordResetCode):
+    async def add(self, data: PasswordResetCode) -> PasswordResetCode:
         self.session.add(data)
+        return data
         
-    async def get_existing_code(self, user_id: int):
+    async def get_existing_code(self, user_id: int) -> Optional[PasswordResetCode]:
         stmt = await self.session.execute(
             select(PasswordResetCode).where(
                 and_(
@@ -35,7 +26,7 @@ class ResetCodeRepository(Repository):
         )
         return stmt.scalar_one_or_none()
 
-    async def get_valid_code(self, user_id: int, code: str):
+    async def get_valid_code(self, user_id: int, code: str) -> Optional[PasswordResetCode]:
         stmt = select(PasswordResetCode).where(
             and_(
                 PasswordResetCode.user_id == user_id,
@@ -46,10 +37,3 @@ class ResetCodeRepository(Repository):
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
-
-
-    async def mark_used(self, reset_code: PasswordResetCode):
-        reset_code.is_used = True
-
-    async def delete(self, code: PasswordResetCode):
-        await self.session.delete(code)

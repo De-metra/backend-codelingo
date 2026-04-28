@@ -1,17 +1,9 @@
 from enum import Enum
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select, update, and_
-from sqlalchemy.orm import selectinload
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.database.db import get_async_session
-from app.database.db import async_session_maker
-from app.schemas.user import UserRegister, UserReturn, Stats, UserChangeProfile, UserUpdatedInfo
 from app.services.base import BaseService
-from app.models.models import Users, Users_Stats, Users_Achievments, Achievments
+from app.models.models import Users_Achievments
 from app.utils.uow import IUnitOfWork
-from app.core.exception import *
+from app.core.exception import AchievmentNotFoundError
 
 
 class AchievementType(str, Enum):
@@ -24,6 +16,7 @@ class AchievementType(str, Enum):
     TASKS_5 = "TASKS_5"     #нет отслеживания кол-ва решенных задач
     TASKS_15 = "TASKS_15"       #нет отслеживания кол-ва решенных задач
     PERFECT_LEVEL = "PERFECT_LEVEL"     #нет отслеживания кол-ва ошибок
+
 
 class AchievmentsService(BaseService):
     def __init__(self, uow: IUnitOfWork):
@@ -52,11 +45,11 @@ class AchievmentsService(BaseService):
             }
 
     async def give_achievment(self, user_id: int, code: str):
-        achievment = await self.uow.achievment.get_by_code(code)
+        achievment = await self.uow.achievment.find_one_or_none(code=code)
         if not achievment:
             raise AchievmentNotFoundError()
         
-        already = await self.uow.user_achievments.has_achievment(user_id=user_id, achievment_id=achievment.id)
+        already = await self.uow.user_achievments.find_one_or_none(user_id=user_id, achievment_id=achievment.id)
         if already: 
             return None
         
@@ -71,9 +64,9 @@ class AchievmentsService(BaseService):
 
     async def get_all_with_status(self, user_id: int):
         async with self.uow:
-            user_achiv = await self.uow.user_achievments.get_by_user(user_id)
+            user_achiv = await self.uow.user_achievments.get_by_user(user_id=user_id)
 
-            all_achiv = await self.uow.achievment.get_all()
+            all_achiv = await self.uow.achievment.find_all()
 
             received_ids = {ua.achievment_id for ua in user_achiv}
 
@@ -98,15 +91,18 @@ class AchievmentsService(BaseService):
         return None
 
     async def _complete_course(self, user_id: int):
-        user_progress = await self.uow.user_course.get_progress(user_id)
+        user_progress = await self.uow.user_course.any_course_completed(user_id)
         
-        if user_progress and user_progress >= 100:
+        if user_progress:
             return await self.give_achievment(user_id=user_id, code=AchievementType.COMPLETE_COURSE)
         
         return None
 
     async def _xp_achivments(self, user_id: int):
-        user_stats = await self.uow.user_stats.get_user_stats(user_id)
+        user_stats = await self.uow.user_stats.find_one_or_none(user_id=user_id)
+
+        if not user_stats:
+            return None
 
         if 100 <= user_stats.total_xp < 500:
             return await self.give_achievment(user_id=user_id, code=AchievementType.XP_100)
@@ -117,7 +113,10 @@ class AchievmentsService(BaseService):
         return None
 
     async def _streak_achivments(self, user_id: int):
-        user_stats = await self.uow.user_stats.get_user_stats(user_id)
+        user_stats = await self.uow.user_stats.find_one_or_none(user_id=user_id)
+
+        if not user_stats:
+            return None
 
         if 3 <= user_stats.streak < 7:
             return await self.give_achievment(user_id=user_id, code=AchievementType.STREAK_3)

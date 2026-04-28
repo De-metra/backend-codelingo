@@ -39,7 +39,7 @@ class UserService(BaseService):
 
     async def get_user_stats(self, user_id: int):
         async with self.uow:
-            stats = await self.uow.user_stats.get_user_stats(user_id=user_id)
+            stats = await self.uow.user_stats.find_one_or_none(user_id=user_id)
 
             if not stats:
                 raise StatsNotFoundError()
@@ -103,7 +103,7 @@ class UserService(BaseService):
             if not update_data:
                 raise NoneDataToUpdate()
 
-            await self.uow.user.update(user=user, data=update_data)
+            await self.uow.user.update(user, update_data)
             await self.uow.commit()
 
             return UserUpdatedInfo(
@@ -152,7 +152,7 @@ class UserService(BaseService):
         
     async def get_user_course(self, user_id: int) -> UserCourseResponse:
         async with self.uow:
-            user_course = await self.uow.user_course.get_user_course(user_id)
+            user_course = await self.uow.user_course.get_last_active_course(user_id)
 
             if not user_course:
                 return UserCourseResponse(course_id=None, course_title=None) 

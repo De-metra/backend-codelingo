@@ -105,9 +105,9 @@ class AuthService():
             if not reset_code:
                 raise InvalidCodeError()
 
-            await self.uow.user.change_password(user, data.new_password)
+            user.hashed_password = get_password_hash(data.new_password)
 
-            await self.uow.reset_code.delete(reset_code)
+            await self.uow.reset_code.delete(id=reset_code.id)
 
             await self.uow.commit()
 

@@ -32,7 +32,8 @@ class TaskService():
                     "title": t.title,
                     "description": t.description,
                     "task_type": t.type_rel.name,
-                    "num_in_order": num
+                    "num_in_order": num,
+                    "hint": t.hint
                 }
 
                 
@@ -68,7 +69,7 @@ class TaskService():
 
     async def get_task_by_id(self, task_id: int) -> TaskBase:
         async with self.uow:
-            task = await self.uow.task.get_by_id(task_id)
+            task = await self.uow.task.get_task_by_id(task_id)
 
             if not task: 
                 raise TaskNotFoundError()
@@ -91,7 +92,7 @@ class TaskService():
 
     async def submit_task(self, task_id: int, user_id: int, answer_data: TaskAnswer):
         async with self.uow:
-            task = await self.uow.task.get_by_id(task_id)
+            task = await self.uow.task.get_task_by_id(task_id)
             if not task:
                 raise TaskNotFoundError()
             

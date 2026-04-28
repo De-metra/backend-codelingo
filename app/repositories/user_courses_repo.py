@@ -1,22 +1,16 @@
-from app.repositories.base import Repository
-from app.models.models import Courses, Users_Courses, Levels
-from sqlalchemy import desc, select, update, and_, insert
+from typing import Optional
+
+from sqlalchemy import desc, select
 from sqlalchemy.orm import selectinload
 
+from app.repositories.base import SQLAlchemyRepository
+from app.models.models import Users_Courses
 
-class UserCourseRepository(Repository):
+
+class UserCourseRepository(SQLAlchemyRepository):
     model = Users_Courses
-
-    async def get_user_courses(self, course_id: int, user_id: int):
-        stmt = await self.session.execute(
-            select(Users_Courses).where(
-                Users_Courses.user_id == user_id, 
-                Users_Courses.course_id == course_id
-            )
-        )
-        return stmt.scalars().first()
     
-    async def get_or_create(self, course_id: int, user_id: int):
+    async def get_or_create(self, course_id: int, user_id: int) -> Users_Courses:
         stmt = await self.session.execute(
             select(Users_Courses).where(
                 Users_Courses.user_id == user_id, 
@@ -35,25 +29,23 @@ class UserCourseRepository(Repository):
             self.session.add(user_course)
 
         return user_course
-    
 
-    async def add(self, users_courses: Users_Courses):
-        self.session.add(users_courses)
+    async def add(self, data: Users_Courses) -> Users_Courses:
+        self.session.add(data)
+        return data
 
-
-    async def update_progress(self, course_id: int, user_id: int, progress):
-        pass
-
-    async def get_progress(self, user_id: int):
+    async def any_course_completed(self, user_id: int) -> bool:
         stmt = await self.session.execute(
-            select(Users_Courses.progress)
-            .where(Users_Courses.user_id == user_id)
+            select(Users_Courses)
+            .where(Users_Courses.user_id == user_id, 
+                   Users_Courses.progress >= 100)
         )
-        return stmt.scalar_one_or_none()
+        return stmt.scalar_one_or_none() is not None
     
-    async def get_user_course(self, user_id: int):
+    async def get_last_active_course(self, user_id: int) -> Optional[Users_Courses]:
         stmt = await self.session.execute(
-            select(Users_Courses).where(Users_Courses.user_id == user_id)
+            select(Users_Courses)
+            .where(Users_Courses.user_id == user_id)
             .options(selectinload(Users_Courses.course))
             .order_by(desc(Users_Courses.updated_at))
             .limit(1)

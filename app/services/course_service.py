@@ -15,7 +15,7 @@ class CourseService():
 
     async def get_all_courses(self):
         async with self.uow:
-            courses = await self.uow.course.get_all_courses()
+            courses = await self.uow.course.find_all()
             return [
                 CourseReturn.model_validate(course)
                 for course in courses
@@ -59,7 +59,7 @@ class CourseService():
             if not course_name:
                 raise NotFoundError()
 
-            course = await self.uow.user_course.get_user_courses(course_id=course_id, user_id=user_id)
+            course = await self.uow.user_course.find_one_or_none(course_id=course_id, user_id=user_id)
 
             if course:
                 raise AlreadyExistsError()

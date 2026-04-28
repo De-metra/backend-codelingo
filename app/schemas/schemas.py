@@ -20,3 +20,5 @@ class Task(BaseModel):
 class TaskAnswer(BaseModel):
     answers: Any
 
+class ErrorResponse(BaseModel):
+    detail: str

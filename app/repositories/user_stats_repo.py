@@ -1,22 +1,17 @@
-from app.repositories.base import Repository
+from sqlalchemy import select
+
+from app.repositories.base import SQLAlchemyRepository
 from app.models.models import Users_Stats
-from sqlalchemy import select, update, and_, insert
 
 
-class UserStatsRepository(Repository):  
+class UserStatsRepository(SQLAlchemyRepository):  
     model = Users_Stats
 
-    async def add(self, data: Users_Stats):
+    async def add(self, data: Users_Stats) -> Users_Stats:
         self.session.add(data)
         return data
     
-    async def get_user_stats(self, user_id: int):
-        stmt = await self.session.execute(
-            select(Users_Stats)
-            .where(Users_Stats.user_id == user_id))
-        return stmt.scalars().first()
-    
-    async def get_or_create(self, user_id: int):
+    async def get_or_create(self, user_id: int) -> Users_Stats:
         stmt = await self.session.execute(
             select(Users_Stats)
             .where(Users_Stats.user_id == user_id))

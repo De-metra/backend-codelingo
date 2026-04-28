@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from fastapi.responses import RedirectResponse
 
+from app.schemas.schemas import ErrorResponse
 from app.schemas.user import UserLogin, UserRegister
 from app.schemas.email import  EmailRequest, CodeRequest, CodeUpdateRequest
 from app.services.auth_service import AuthService
@@ -37,7 +38,13 @@ async def handle_code(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
     
 
-@router.post("/register/", status_code=201)
+@router.post("/register/",
+    status_code=201,
+    responses={
+        400: {"model": ErrorResponse, "description": "Некорректные данные запроса"},
+        409: {"model": ErrorResponse, "description": "Email уже зарегистрирован"}    
+    }
+)
 async def register(
     user_in: UserRegister, 
     auth_service: AuthService = Depends(get_auth_service)
