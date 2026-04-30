@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from app.models.models import Users_Stats
-from app.schemas.level import LevelBaseReturn, LevelStatusReturn, LevelReturn, TheoryReturn
+from app.schemas.level import LevelBaseReturn, LevelStatusReturn, TheoryReturn, XpReturn, LevelCompleteReturn
 from app.utils.uow import IUnitOfWork
 from app.core.exception import (
     LevelAlreadyCompletedError, NotFoundError,
@@ -14,7 +14,7 @@ class LevelService():
     def __init__(self, uow: IUnitOfWork):
         self.uow = uow
 
-    async def get_levels_with_progress(self, course_id: int, user_id: int):
+    async def get_levels_with_progress(self, course_id: int, user_id: int) -> list[LevelStatusReturn]:
         async with self.uow:
             levels = await self.uow.level.get_by_course(course_id)
             
@@ -33,7 +33,7 @@ class LevelService():
                 for level in levels
             ]
         
-    async def get_level_info(self, level_id: int, user_id: int):
+    async def get_level_info(self, level_id: int, user_id: int) -> LevelBaseReturn:
         async with self.uow:
             level = await self.uow.level.get_by_id(level_id)
 
@@ -50,7 +50,7 @@ class LevelService():
                 is_complete=is_complited or False,
             ) 
 
-    async def get_level_theory(self, level_id: int):
+    async def get_level_theory(self, level_id: int) -> TheoryReturn:
         async with self.uow:
             theory = await self.uow.level.get_level_theory(level_id)
 
@@ -61,18 +61,18 @@ class LevelService():
                 theory=theory.description
             )   
         
-    async def get_level_xp(self, level_id: int):
+    async def get_level_xp(self, level_id: int) -> XpReturn:
         async with self.uow:
             xp = await self.uow.level.get_level_xp(level_id)
 
             if not xp:
                 raise XpNotFoundError()
 
-            return {"xp": xp}
+            return XpReturn(xp=xp)
         
-    async def complete_level(self, level_id: int, user_id: int):
+    async def complete_level(self, level_id: int, user_id: int) -> LevelCompleteReturn:
         async with self.uow:
-            user_with_info = await self.uow.user.get_user_with_stats_and_levels(user_id) # хачем?
+            user_with_info = await self.uow.user.get_user_with_stats_and_levels(user_id)
 
             if not user_with_info:
                 raise UserNotFoundError()
@@ -98,15 +98,14 @@ class LevelService():
 
             await self.uow.commit()
 
-            return {
-                "message": f"Урок id:{level_id} завершён",
-                "xp_added": level.xp,
-                "total_xp": new_stats.total_xp,
-                "streak": new_stats.streak,
-                "course_progress": progress_percent
-            }
+            return LevelCompleteReturn(
+                message=f"Урок id:{level_id} завершён",
+                xp_added=level.xp,
+                total_xp=new_stats.total_xp,
+                streak=new_stats.streak,
+                course_progress=progress_percent
+            )
     
-
 
     def _update_user_streak(self, stats: Users_Stats) -> Users_Stats:
         now = datetime.now().date()

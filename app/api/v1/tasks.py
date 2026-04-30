@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.schemas.schemas import TaskAnswer
+from app.schemas.schemas import ErrorResponse
+from app.schemas.task import TaskBase, TaskHintReturn, TaskAnswer
 from app.core.security import  get_user_from_token
 from app.services.task_service import TaskService
 from app.utils.dependencies import get_task_service
@@ -9,7 +10,14 @@ from app.core.exception import AppError, TaskNotFoundError
 
 router = APIRouter()
 
-@router.get("/{task_id}/")
+@router.get(
+    "/{task_id}",
+    response_model=TaskBase,
+    responses={
+        404: {"model": ErrorResponse, "description": "Задача не найдена"},
+        400: {"model": ErrorResponse, "description": "Некорректный запрос"},
+    },
+)
 async def get_task_info(
     task_id: int, 
     task_service: TaskService = Depends(get_task_service)
@@ -17,13 +25,19 @@ async def get_task_info(
     try:
         return await task_service.get_task_by_id(task_id=task_id)
     except TaskNotFoundError:
-        raise HTTPException(status_code=404, detail="Задача не найдены")
+        raise HTTPException(status_code=404, detail="Задача не найдена")
     except AppError as err:
         detail = str(err) or "Bad request"
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
     
 
-@router.get("/{task_id}/hint/")
+@router.get(
+    "/{task_id}/hint",
+    response_model=TaskHintReturn,
+    responses={
+        400: {"model": ErrorResponse, "description": "Некорректный запрос"},
+    }
+)
 async def get_level_info(
     task_id: int, 
     task_service: TaskService = Depends(get_task_service)
@@ -38,7 +52,13 @@ async def get_level_info(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
 
 
-@router.post("/{task_id}/submit/")           # ДОПИСАТЬ
+@router.post(
+    "/{task_id}/submit",
+    responses={
+        404: {"model": ErrorResponse, "description": "Задача не найдена"},
+        400: {"model": ErrorResponse, "description": "Некорректный запрос"},
+    }   
+)       
 async def check_task_answer(
     task_id : int, 
     answer_data : TaskAnswer, 

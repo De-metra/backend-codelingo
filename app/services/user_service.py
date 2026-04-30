@@ -1,29 +1,25 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile
-from sqlalchemy import select, update, and_
-from sqlalchemy.orm import selectinload
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import UploadFile
 
-from app.database.db import get_async_session
-from app.database.db import async_session_maker
 from app.core.cloudinary import upload_image
-from app.schemas.course import UserCourseResponse
-from app.schemas.user import UserRegister, UserReturn, Stats, UserChangeProfile, UserUpdatedInfo
-from app.services.base import BaseService
+from app.schemas.schemas import MessageReturn
+from app.schemas.course import UserCourseProgressReturn, UserCourseResponse
+from app.schemas.user import UserRegister, UserReturn, Stats, UserUpdatedInfo, UserChangeAvatar
 from app.models.models import Users, Users_Stats
 from app.utils.uow import IUnitOfWork
-from app.core.exception import CourseNotFoundError, StatsNotFoundError, UserNotFoundError, NoneDataToUpdate
+from app.core.exception import NotFoundError, StatsNotFoundError, UserNotFoundError, NoneDataToUpdate
 
-class UserService(BaseService):
+
+class UserService():
     def __init__(self, uow: IUnitOfWork):
         self.uow : IUnitOfWork = uow
 
-    async def add_user(self, user: UserRegister):
+    async def add_user(self, user: UserRegister) -> UserReturn:
         user_dict: dict = user.model_dump()
 
-        async with self.uow:     # вход в контекст (если выбьет с ошибкой, то изменения откатятся) 
-            user_from_db = await self.uow.user.add_one(user_dict)
+        async with self.uow:     
+            user_from_db = await self.uow.user.add(user_data=Users(**user_dict)) 
             user_to_return = UserReturn.model_validate(user_from_db)
 
             await self.uow.commit()
@@ -31,13 +27,13 @@ class UserService(BaseService):
             return user_to_return
         
 
-    async def get_users(self):
+    async def get_users(self) -> list[UserReturn]:
         async with self.uow:
             users = await self.uow.user.find_all()
             return [UserReturn.model_validate(user) for user in users]
 
 
-    async def get_user_stats(self, user_id: int):
+    async def get_user_stats(self, user_id: int) -> Stats:
         async with self.uow:
             stats = await self.uow.user_stats.find_one_or_none(user_id=user_id)
 
@@ -46,7 +42,7 @@ class UserService(BaseService):
             
             return Stats.model_validate(stats)
         
-    async def get_user_with_stats(self, user_id: int):
+    async def get_user_with_stats(self, user_id: int) -> UserReturn:
         async with self.uow:
             user = await self.uow.user.get_user_with_stats(user_id=user_id)
 
@@ -69,7 +65,7 @@ class UserService(BaseService):
                 streak=stats.streak
             )
         
-    async def change_avatar(self, user_id: int, file: UploadFile):
+    async def change_avatar(self, user_id: int, file: UploadFile) -> UserChangeAvatar:
         async with self.uow:
             user = await self.uow.user.get_by_id(user_id)
 
@@ -81,10 +77,10 @@ class UserService(BaseService):
             user.picture_link = avatar_url
             await self.uow.commit()
 
-            return {"avatar_url": avatar_url}
+            return UserChangeAvatar(avatar_url=avatar_url)
         
     
-    async def change_me(self, user_id: int, username: str | None, file: UploadFile | None):
+    async def change_me(self, user_id: int, username: str | None, file: UploadFile | None) -> UserUpdatedInfo:
         async with self.uow:
             user = await self.uow.user.get_by_id(user_id)
 
@@ -114,29 +110,7 @@ class UserService(BaseService):
             )
 
         
-    # async def change_me(self, user_id: int, data: UserChangeProfile):
-    #     async with self.uow:
-    #         user = await self.uow.user.get_by_id(user_id)
-
-    #         if not user:
-    #             raise UserNotFoundError()
-            
-    #         update_data = data.model_dump(exclude_unset=True)
-
-    #         if not update_data:
-    #             raise NoneDataToUpdate()
-
-    #         await self.uow.user.update(user=user, data=update_data)
-    #         await self.uow.commit()
-
-    #         return UserUpdatedInfo(
-    #             id=user_id,
-    #             username=user.username,
-    #             email=user.email, 
-    #             picture_link=user.picture_link
-    #         ) 
-        
-    async def soft_delete_account(self, user_id: int):
+    async def soft_delete_account(self, user_id: int) -> MessageReturn:
         async with self.uow:
             user = await self.uow.user.get_by_id(user_id)
 
@@ -148,8 +122,9 @@ class UserService(BaseService):
 
             await self.uow.commit()
 
-            return {"message": f"Аккаунт {user.username} успешно удалён"}
+            return MessageReturn(message=f"Аккаунт {user.username} успешно удалён")
         
+
     async def get_user_course(self, user_id: int) -> UserCourseResponse:
         async with self.uow:
             user_course = await self.uow.user_course.get_last_active_course(user_id)
@@ -158,3 +133,22 @@ class UserService(BaseService):
                 return UserCourseResponse(course_id=None, course_title=None) 
             
             return UserCourseResponse(course_id=user_course.course_id, course_title=user_course.course.title)
+        
+
+    async def get_user_course_progress(self, user_id: int) -> list[UserCourseProgressReturn]:
+        async with self.uow:
+            user_courses = await self.uow.user_course.get_progress_of_courses(user_id)
+
+            if not user_courses:
+                raise NotFoundError()
+            
+            return [
+                UserCourseProgressReturn(
+                    id=course.id,
+                    course_name=course.course.title,
+                    progress=course.progress,
+                    is_complete=course.is_complete,
+                    started_at=course.started_at
+                )
+                for course in user_courses
+            ]

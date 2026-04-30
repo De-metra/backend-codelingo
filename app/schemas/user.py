@@ -1,9 +1,8 @@
-from typing_extensions import Self
 from datetime import datetime
-from pydantic import BaseModel, EmailStr, Field, field_validator, conint, model_validator, ConfigDict
-from typing import Optional, Any
-from fastapi import UploadFile
-import re
+from typing import Optional
+
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
+
 
 
 class UserBase(BaseModel):
@@ -30,19 +29,12 @@ class UserReturn(UserBase):
 class UserPrivateInfo(BaseModel):
     password: str
     created_at: datetime
-    #last_login: datetime
 
 class UserChangeProfile(BaseModel):
     username: Optional[str] = None
     picture_link: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
-
-# class UserChangeProfile(BaseModel):
-#     username: Optional[str] = None
-#     picturw_file: Optional[UploadFile] = None
-
-#     model_config = ConfigDict(from_attributes=True) 
 
 class UserUpdatedInfo(BaseModel):
     id: int
@@ -53,7 +45,6 @@ class UserUpdatedInfo(BaseModel):
 class UserChangePassword(BaseModel):
     password: str = Field(..., min_length=5, max_length=50)
 
-#model_config = ConfigDict(from_attributes=True)
 
 class Stats(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -61,3 +52,7 @@ class Stats(BaseModel):
     last_activity: Optional[datetime] = None
     streak: int
     total_xp: int
+
+class UserChangeAvatar(BaseModel):
+    avatar_url: str
+    

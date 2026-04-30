@@ -2,9 +2,10 @@ import httpx
 
 from app.core.config import settings
 from app.models.models import Tests
+from app.executors.base import BaseExecutor
 
 
-class WandboxExecutor:
+class WandboxExecutor():
     def __init__(self):
         self.api_url = settings.WANDBOX_URL
         self.timeout = httpx.Timeout(25.0, connect=5.0)

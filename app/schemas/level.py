@@ -1,9 +1,7 @@
-from typing_extensions import Self
-from datetime import datetime
-from pydantic import BaseModel, EmailStr, Field, field_validator, conint, model_validator
-from typing import Optional, Any
-import re
-from app.schemas.schemas import Task
+from pydantic import BaseModel
+
+from app.schemas.task import TaskBase
+
 
 class LevelStatusReturn(BaseModel):
     id: int
@@ -22,7 +20,17 @@ class LevelReturn(LevelStatusReturn):
     description: str
     theory: str
     xp: int
-    tasks: list[Task]
+    tasks: list[TaskBase]
 
 class TheoryReturn(BaseModel):
     theory: str
+
+class XpReturn(BaseModel):
+    xp: int
+
+class LevelCompleteReturn(BaseModel):
+    message: str
+    xp_added: int
+    total_xp: int
+    streak: int
+    course_progress: float

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Sequence
 
 from sqlalchemy import desc, select
 from sqlalchemy.orm import selectinload
@@ -51,3 +51,11 @@ class UserCourseRepository(SQLAlchemyRepository):
             .limit(1)
         )
         return stmt.scalar_one_or_none()
+
+    async def get_progress_of_courses(self, user_id: int) -> Sequence[Users_Courses]:
+        stmt = await self.session.execute(
+            select(Users_Courses)
+            .where(Users_Courses.user_id == user_id)
+            .options(selectinload(Users_Courses.course))
+        )
+        return stmt.scalars().all()

@@ -1,9 +1,6 @@
-from typing_extensions import Self
-from datetime import datetime
-from pydantic import BaseModel, EmailStr, Field, field_validator, conint, model_validator
-from typing import Optional, Any
-import re
 from typing import List
+
+from pydantic import BaseModel, EmailStr
 
 
 class EmailRequest(BaseModel):

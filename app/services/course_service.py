@@ -1,10 +1,6 @@
-from datetime import datetime
-from fastapi import HTTPException
-
-from app.core.security import verify_password, get_password_hash, create_jwt_token
-from app.models.models import Users, Users_Courses, PasswordResetCode
-from app.schemas.course import CourseReturn
-from app.schemas.email import CodeUpdateRequest
+from app.models.models import Users_Courses
+from app.schemas.course import CourseReturn, CourseWithLevels, LevelBase
+from app.schemas.schemas import MessageReturn
 from app.utils.uow import IUnitOfWork
 from app.core.exception import NotFoundError, AlreadyExistsError
 
@@ -13,7 +9,7 @@ class CourseService():
     def __init__(self, uow: IUnitOfWork):
         self.uow = uow
 
-    async def get_all_courses(self):
+    async def get_all_courses(self) -> list[CourseReturn]:
         async with self.uow:
             courses = await self.uow.course.find_all()
             return [
@@ -21,7 +17,7 @@ class CourseService():
                 for course in courses
             ]
         
-    async def get_course_by_id(self, course_id: int):
+    async def get_course_by_id(self, course_id: int) -> CourseReturn:
         async with self.uow:
             course = await self.uow.course.get_by_id(course_id)
 
@@ -30,29 +26,29 @@ class CourseService():
             
             return CourseReturn.model_validate(course)
         
-    async def get_course_with_levels(self, course_id: int):
+    async def get_course_with_levels(self, course_id: int) -> CourseWithLevels:
         async with self.uow:
             course = await self.uow.course.get_with_levels(course_id)
 
             if not course:
                 raise NotFoundError()
 
-            return {
-                "id": course.id,
-                "title": course.title,
-                "description": course.description,
-                "levels": [ 
-                    {
-                        "id": level.id,
-                        "title": level.title,
-                        "xp": level.xp
-                    }
+            return CourseWithLevels(
+                id=course.id,
+                title=course.title,
+                description=course.description,
+                levels=[
+                        LevelBase(
+                            id=level.id,
+                            title=level.title,
+                            xp=level.xp
+                        )
                     for level in course.levels
                 ] 
-            }
+            )
         
     
-    async def start_course(self, course_id: int, user_id: int):
+    async def start_course(self, course_id: int, user_id: int) -> MessageReturn:
         async with self.uow:
             course_name = await self.uow.course.get_by_id(course_id)
 
@@ -70,10 +66,10 @@ class CourseService():
                 progress=0
             )
 
-            await self.uow.user_stats.add(new_user_course)
+            await self.uow.user_course.add(new_user_course)
             await self.uow.commit()
 
-            return {"message": f"Курс '{course_name}' начат!"}
+            return MessageReturn(message=f"Курс '{course_name}' начат!")
             
 
 

@@ -1,8 +1,8 @@
-from typing_extensions import Self
 from datetime import datetime
-from pydantic import BaseModel, EmailStr, Field, field_validator, conint, model_validator, ConfigDict
-from typing import Optional, Any
-import re
+from typing import Optional
+
+from pydantic import BaseModel, ConfigDict
+
 
 class LevelBase(BaseModel):
     id: int
@@ -20,6 +20,13 @@ class CourseReturn(BaseModel):
 class UserCourseResponse(BaseModel):
     course_id: Optional[int] = None
     course_title: Optional[str] = None
+
+class UserCourseProgressReturn(BaseModel):
+    id: int
+    course_name: str
+    progress: float
+    is_complete: bool
+    started_at: datetime
 
 class CourseWithLevels(CourseReturn):
     levels: list[LevelBase]

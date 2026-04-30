@@ -22,7 +22,7 @@ class UserRepository(SQLAlchemyRepository):
     async def get_by_id(self, id: int) -> Optional[Users]:
         stmt = await self.session.execute(
             select(Users).where(
-                Users.google_id == id,
+                Users.id == id,
                 Users.is_active == True
             )
         )

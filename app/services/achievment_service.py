@@ -1,6 +1,6 @@
 from enum import Enum
 
-from app.services.base import BaseService
+from app.schemas.achiev import AchievmentReturn, AchievmentWithStatusReturn
 from app.models.models import Users_Achievments
 from app.utils.uow import IUnitOfWork
 from app.core.exception import AchievmentNotFoundError
@@ -18,11 +18,11 @@ class AchievementType(str, Enum):
     PERFECT_LEVEL = "PERFECT_LEVEL"     #нет отслеживания кол-ва ошибок
 
 
-class AchievmentsService(BaseService):
+class AchievmentsService():
     def __init__(self, uow: IUnitOfWork):
         self.uow : IUnitOfWork = uow
 
-    async def check_after_level_complete(self, user_id: int):
+    async def check_after_level_complete(self, user_id: int) -> list[AchievmentReturn]:
         earned = []
         async with self.uow:
             for checker in (
@@ -37,12 +37,10 @@ class AchievmentsService(BaseService):
             
             await self.uow.commit()
 
-            return {
-                "earned": [
-                    {"id": a.id, "title": a.title, "icon": a.icon}
-                    for a in earned
-                ]
-            }
+            return [
+                AchievmentReturn(id=a.id, title=a.title, icon=a.icon)
+                for a in earned
+            ]
 
     async def give_achievment(self, user_id: int, code: str):
         achievment = await self.uow.achievment.find_one_or_none(code=code)
@@ -60,9 +58,9 @@ class AchievmentsService(BaseService):
         await self.uow.user_achievments.add(achievment_to_add)
 
         return achievment
-            
 
-    async def get_all_with_status(self, user_id: int):
+
+    async def get_all_with_status(self, user_id: int) -> list[AchievmentWithStatusReturn]:
         async with self.uow:
             user_achiv = await self.uow.user_achievments.get_by_user(user_id=user_id)
 
@@ -71,13 +69,13 @@ class AchievmentsService(BaseService):
             received_ids = {ua.achievment_id for ua in user_achiv}
 
             return [
-                {
-                    "id": a.id,
-                    "title": a.title,
-                    "description": a.description,
-                    "icon": a.icon,
-                    "received": a.id in received_ids
-                }
+                AchievmentWithStatusReturn(
+                    id=a.id,
+                    title=a.title,
+                    description=a.description,
+                    icon=a.icon,
+                    received=a.id in received_ids
+                )
                 for a in all_achiv
             ]
         

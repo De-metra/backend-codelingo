@@ -1,18 +1,20 @@
 from datetime import datetime, timedelta
-from fastapi import HTTPException
 
 import aiohttp
 
 from app.core.security import verify_password, get_password_hash, create_jwt_token, generate_reset_code
 from app.models.models import Users, Users_Stats, PasswordResetCode
-from app.schemas.user import UserRegister, UserReturn, UserLogin
-from app.schemas.email import CodeUpdateRequest, EmailSchema, EmailRequest, CodeRequest
+from app.schemas.auth import TokenReturn
+from app.schemas.schemas import MessageReturn
+from app.schemas.user import UserRegister, UserLogin
+from app.schemas.email import CodeUpdateRequest, EmailRequest, CodeRequest
 from app.core.config import settings
 from app.core.resend import send_reset_mail
-from app.internal.mail import create_message, get_mail
-#from app.internal.mail import send_email  # твой метод отправки
 from app.utils.uow import IUnitOfWork
-from app.core.exception import *
+from app.core.exception import (
+    UserAlreadyExistsError, UnauthorizedError,
+    UserNotFoundError, InvalidCodeError, GoogleAuthError
+)
 
 
 class AuthService():
@@ -20,7 +22,7 @@ class AuthService():
         self.uow = uow
 
 
-    async def register(self, user_data: UserRegister) -> UserReturn: 
+    async def register(self, user_data: UserRegister) -> TokenReturn: 
         async with self.uow:
             existing_user = await self.uow.user.get_by_email(user_data.email)
             if existing_user and existing_user.is_active:
@@ -35,12 +37,12 @@ class AuthService():
             await self._create_user_with_stats(new_user)
             await self.uow.commit()
 
-            token = create_jwt_token({"sub": str(new_user.id)}) #заменить на репозиторий или что-то другое
-            
-            return {"access_token": token, "token_type": "bearer"}  #возвращать пользователя????
+            token = create_jwt_token({"sub": str(new_user.id)}) 
+
+            return TokenReturn(access_token=token, token_type="bearer")
         
 
-    async def login(self, user_data: UserLogin):
+    async def login(self, user_data: UserLogin) -> TokenReturn:
         async with self.uow:
             user = await self.uow.user.get_by_email(user_data.email)
 
@@ -48,15 +50,15 @@ class AuthService():
                 raise UnauthorizedError()
 
             token = create_jwt_token({"sub": str(user.id)})
-            return {"access_token": token, "token_type": "bearer"}   
+            return TokenReturn(access_token=token, token_type="bearer")   
     
 
-    async def forgot_password(self, user_mail: EmailRequest): 
+    async def forgot_password(self, user_mail: EmailRequest) -> MessageReturn: 
         async with self.uow:
             user = await self.uow.user.get_by_email(user_mail.email)
 
             if not user:
-                return {"message": "Сообщение с кодом отправлено на вашу почту!"}
+                return MessageReturn(message="Сообщение с кодом отправлено на вашу почту!")
             
             # если есть ранее запрошенный не просроченный код
             code_obj = await self.uow.reset_code.get_existing_code(user.id)
@@ -77,10 +79,10 @@ class AuthService():
 
         await send_reset_mail(user_mail.email, code)
 
-        return {"message": "Сообщение с кодом отправлено на вашу почту!"}
+        return MessageReturn(message="Сообщение с кодом отправлено на вашу почту!")
         
     
-    async def verify_code(self, data: CodeRequest):
+    async def verify_code(self, data: CodeRequest) -> MessageReturn:
         async with self.uow:
             user = await self.uow.user.get_by_email(data.email)
 
@@ -92,10 +94,10 @@ class AuthService():
             if not reset_token:
                 raise InvalidCodeError()
             
-            return {"message": "Код подтвержден", "code": data.code}
+            return MessageReturn(message="Код подтвержден")
 
 
-    async def reset_password(self, data: CodeUpdateRequest):     
+    async def reset_password(self, data: CodeUpdateRequest) -> MessageReturn:     
         async with self.uow:
             user = await self.uow.user.get_by_email(data.email)
             if not user:
@@ -111,10 +113,10 @@ class AuthService():
 
             await self.uow.commit()
 
-        return {"message": "Пароль успешно обновлён"} 
+        return MessageReturn(message="Пароль успешно обновлён")
 
 
-    async def google_callback(self, code: str):
+    async def google_callback(self, code: str) -> str:
         access_token = await self._exchange_code(code)
         user_info = await self._get_user_info(access_token)
         async with self.uow:
@@ -128,7 +130,7 @@ class AuthService():
 #---------------------------------Вспомогательные-----------------------------------------------------
 
     
-    async def _get_or_create_google_user(self, user_info: dict):
+    async def _get_or_create_google_user(self, user_info: dict) -> Users:
         # ищем по google id
         user = await self.uow.user.get_by_google_id(user_info["sub"])
         if user: return user
@@ -153,7 +155,7 @@ class AuthService():
         return await self._create_user_with_stats(new_user)
     
     
-    async def _create_user_with_stats(self, user_model: Users):
+    async def _create_user_with_stats(self, user_model: Users) -> Users:
         await self.uow.user.add(user_model)
         await self.uow.session.flush()
 
@@ -168,7 +170,7 @@ class AuthService():
         return user_model
 
 
-    async def _exchange_code(self, code: str):
+    async def _exchange_code(self, code: str) -> str:
         async with aiohttp.ClientSession() as session:
                 async with session.post(
                     "https://oauth2.googleapis.com/token",
@@ -185,9 +187,8 @@ class AuthService():
                     if resp.status != 200:
                         error_text = await resp.json()
                         print(f"Google Auth Error: {error_text}")
-                        raise GoogleAuthError()     # нет обработки
+                        raise GoogleAuthError()     
                     
-                    #print(f"{resp=}")
                     data = await resp.json()
                     return data["access_token"]
     
@@ -203,7 +204,6 @@ class AuthService():
                     print(f"Google Auth Error: {error_text}")
                     raise GoogleAuthError()
 
-                #print(f"{resp=}")
                 return await resp.json() 
 
     

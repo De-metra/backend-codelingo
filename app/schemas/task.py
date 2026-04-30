@@ -1,9 +1,6 @@
-from typing_extensions import Self
-from datetime import datetime
-from pydantic import BaseModel, EmailStr, Field, field_validator, conint, model_validator, ConfigDict
-from typing import Optional, Any
-import re
+from typing import Optional
 
+from pydantic import BaseModel
 
 
 class TaskType(BaseModel):
@@ -12,18 +9,15 @@ class TaskType(BaseModel):
 class TaskOption(TaskType):
     id: int
     text: str
-    is_correct: bool
 
 class TaskGap(TaskType):
     template: str
-    answer: str
 
 class TaskCode(TaskType):
     id: int
-    input_data: str
-    expected_output_data: str
-    input_type: str | None
-    output_type: str | None
+    func_name: str | None = None
+    template: str | None = None 
+    language: str 
 
 
 class TaskBase(BaseModel):
@@ -31,9 +25,17 @@ class TaskBase(BaseModel):
     title: str
     description: str | None
     task_type: str
+    num_in_order: int
     hint: str | None
 
-    #tasks: list[TaskType]
+
+class AllTasksReturn(TaskBase):
+    options: Optional[list[TaskOption]] = None
+    gaps: Optional[list[TaskGap]] = None
+    code: Optional[list[TaskCode]] = None
 
 class TaskAnswer(BaseModel):
     answers: list
+
+class TaskHintReturn(BaseModel):
+    hint: Optional[str] = None

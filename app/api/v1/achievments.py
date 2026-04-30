@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from app.schemas.achiev import AchievmentReturn, AchievmentWithStatusReturn
 from app.core.security import  get_user_from_token
 from app.services.achievment_service import AchievmentsService
 from app.utils.dependencies import get_achievment_service
@@ -10,7 +11,10 @@ from app.core.exception import (
 
 router = APIRouter()
 
-@router.post("/check") 
+@router.post(   
+    "/check",
+    response_model=list[AchievmentReturn]
+) 
 async def check_achievments(
     current_user: str = Depends(get_user_from_token),
     achiv_service: AchievmentsService = Depends(get_achievment_service)
@@ -22,7 +26,10 @@ async def check_achievments(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err    
 
 
-@router.get("/my") 
+@router.get(
+    "/my",
+    response_model=list[AchievmentWithStatusReturn]
+) 
 async def get_my_achievments(
     current_user: str = Depends(get_user_from_token),
     achiv_service: AchievmentsService = Depends(get_achievment_service)

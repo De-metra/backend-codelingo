@@ -14,7 +14,10 @@ class TaskRepository(SQLAlchemyRepository):
         stmt = await self.session.execute(
             select(Tasks)
             .where(Tasks.id == id)
-            .options(selectinload(Tasks.type_rel))
+            .options(
+                selectinload(Tasks.type_rel),
+                selectinload(Tasks.tasks_link),
+            )
         )
         return stmt.scalar_one_or_none()
     

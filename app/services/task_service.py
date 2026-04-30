@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
 from app.models.models import Tasks
-from app.schemas.task import TaskBase, TaskAnswer
+from app.schemas.task import TaskBase, TaskAnswer, AllTasksReturn, TaskHintReturn
 from app.utils.uow import IUnitOfWork
 from app.core.exception import LevelNotFoundError, TaskNotFoundError
 from app.executors.base import ExecutorRegistry
@@ -13,7 +13,7 @@ class TaskService():
         self.executor_registry = executor_registry
 
 
-    async def get_level_tasks(self, level_id: int) -> Dict[str, Any]:
+    async def get_level_tasks(self, level_id: int) -> list[AllTasksReturn]:
         async with self.uow:
             level = await self.uow.level.get_by_id(level_id)
             if not level:
@@ -23,19 +23,19 @@ class TaskService():
             if not rows_tasks:
                 raise TaskNotFoundError()
             
+        
             tasks_data = []
             for t, num in rows_tasks:
                 t_type = t.type_rel.name
 
-                task_info = {       # ПОД PYDANTIC???
-                    "task_id": t.id,
+                task_info = {     
+                    "id": t.id,
                     "title": t.title,
                     "description": t.description,
                     "task_type": t.type_rel.name,
                     "num_in_order": num,
                     "hint": t.hint
                 }
-
                 
                 if t_type == 'choice':
                     task_info["options"] = [
@@ -62,9 +62,10 @@ class TaskService():
                         }
                         for c in t.code
                     ]
-                tasks_data.append(task_info)
+                
+                tasks_data.append(AllTasksReturn(**task_info))
 
-            return {"level_id": level_id, "tasks": tasks_data}
+            return tasks_data
         
 
     async def get_task_by_id(self, task_id: int) -> TaskBase:
@@ -79,15 +80,16 @@ class TaskService():
                 title=task.title,
                 description=task.description,
                 task_type=task.type_rel.name,
-                hint=task.hint                  #нужно ли отдавать hint
+                num_in_order=task.tasks_link[0].num_in_order,
+                hint=task.hint                
             )
         
 
-    async def get_task_hint(self, task_id: int) -> Dict[str, Any]:
+    async def get_task_hint(self, task_id: int) -> TaskHintReturn:
         async with self.uow:
             hint = await self.uow.task.get_task_hint(task_id=task_id)
 
-            return {"hint": hint}
+            return TaskHintReturn(hint=hint)
         
 
     async def submit_task(self, task_id: int, user_id: int, answer_data: TaskAnswer):
@@ -100,7 +102,7 @@ class TaskService():
             return await self._verify_answer(task, answer_data)
 
 
-    async def _verify_answer(self, task: Tasks, answer_data: TaskAnswer) -> Dict[str, Any]:
+    async def _verify_answer(self, task: Tasks, answer_data: TaskAnswer):
         task_type = task.type_rel.name
 
             # "answers": [1, 3]
