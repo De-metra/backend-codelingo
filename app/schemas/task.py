@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 
 from pydantic import BaseModel
 
@@ -35,7 +35,7 @@ class AllTasksReturn(TaskBase):
     code: Optional[list[TaskCode]] = None
 
 class TaskAnswer(BaseModel):
-    answers: list
+    answers: Any
 
 class TaskHintReturn(BaseModel):
     hint: Optional[str] = None
