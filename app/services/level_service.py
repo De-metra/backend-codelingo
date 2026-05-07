@@ -1,10 +1,13 @@
 from datetime import datetime, timedelta
+from typing import Optional
 
-from app.models.models import Users_Stats
+from app.models.models import Users_Stats, Users_Achievments, Achievments
+from app.schemas.achiev import AchievmentReturn
 from app.schemas.level import LevelBaseReturn, LevelStatusReturn, TheoryReturn, XpReturn, LevelCompleteReturn
+from app.services.achievment_service import AchievementType
 from app.utils.uow import IUnitOfWork
 from app.core.exception import (
-    LevelAlreadyCompletedError, NotFoundError,
+    AchievmentNotFoundError, LevelAlreadyCompletedError, NotFoundError,
     TheoryNotFoundError, XpNotFoundError, UserNotFoundError,
     LevelNotFoundError
 )
@@ -83,18 +86,21 @@ class LevelService():
                 raise NotFoundError()    
             
             user_level = await self.uow.user_levels.get_or_create(level_id=level_id, user_id=user_id)
-
-            if user_level.is_complete:
-                 raise LevelAlreadyCompletedError()
-            
-            user_level.is_complete = True
-            
             stats = await self.uow.user_stats.get_or_create(user_id)
-            stats.total_xp += level.xp
 
+            is_first_time = not user_level.is_complete
+            xp_to_add = 0
+
+            if is_first_time:
+                user_level.is_complete = True
+                stats.total_xp += level.xp
+                xp_to_add = level.xp
+            
             new_stats = self._update_user_streak(stats)
 
             progress_percent = await self._calculate_course_progress(user_id=user_id, course_id=level.course_id)
+
+            new_achievments = await self._check_after_level_complete(user_id)
 
             await self.uow.commit()
 
@@ -102,8 +108,9 @@ class LevelService():
                 message=f"Урок id:{level_id} завершён",
                 xp_added=level.xp,
                 total_xp=new_stats.total_xp,
-                streak=new_stats.streak,
-                course_progress=progress_percent
+                streak=new_stats.streak, 
+                course_progress=progress_percent,
+                new_achievments=new_achievments or None
             )
     
 
@@ -138,4 +145,83 @@ class LevelService():
             users_course.is_complete = True
 
         return progress_percent
+
+    async def _check_after_level_complete(self, user_id: int) -> list:
+        earned = []
+        
+        for checker in (
+            self._first_level,
+            self._complete_course,
+            self._xp_achivments,
+            self._streak_achivments
+        ):
+            res = await checker(user_id)
+            if res:
+                earned.append(res)
+
+        return [
+            AchievmentReturn(id=a.id, title=a.title, icon=a.icon)
+            for a in earned
+        ]
+        
+    async def _first_level(self, user_id: int):
+        completed_levels = await self.uow.user_levels.get_completed_levels_ids(user_id)
+        
+        if len(completed_levels) == 1:
+            return await self._give_achievment(user_id=user_id, code=AchievementType.FIRST_LEVEL)
+        
+        return None
+
+    async def _complete_course(self, user_id: int):
+        user_progress = await self.uow.user_course.any_course_completed(user_id)
+        
+        if user_progress:
+            return await self._give_achievment(user_id=user_id, code=AchievementType.COMPLETE_COURSE)
+        
+        return None
+
+    async def _xp_achivments(self, user_id: int):
+        user_stats = await self.uow.user_stats.find_one_or_none(user_id=user_id)
+
+        if not user_stats:
+            return None
+
+        if 100 <= user_stats.total_xp < 500:
+            return await self._give_achievment(user_id=user_id, code=AchievementType.XP_100)
+
+        if user_stats.total_xp >= 500:
+            return await self._give_achievment(user_id=user_id, code=AchievementType.XP_500) 
+        
+        return None
+
+    async def _streak_achivments(self, user_id: int):
+        user_stats = await self.uow.user_stats.find_one_or_none(user_id=user_id)
+
+        if not user_stats:
+            return None
+
+        if 3 <= user_stats.streak < 7:
+            return await self._give_achievment(user_id=user_id, code=AchievementType.STREAK_3)
+
+        if user_stats.streak >= 7:
+            return await self._give_achievment(user_id=user_id, code=AchievementType.STREAK_7)
+        
+        return None
+    
+    async def _give_achievment(self, user_id: int, code: str) -> Optional[Achievments]:
+        achievment = await self.uow.achievment.find_one_or_none(code=code)
+        if not achievment:
+            raise AchievmentNotFoundError()
+        
+        already = await self.uow.user_achievments.find_one_or_none(user_id=user_id, achievment_id=achievment.id)
+        if already: 
+            return None
+        
+        achievment_to_add = Users_Achievments(
+            user_id = user_id,
+            achievment_id = achievment.id
+        )
+        await self.uow.user_achievments.add(achievment_to_add)
+
+        return achievment
         

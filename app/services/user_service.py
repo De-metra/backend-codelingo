@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from fastapi import UploadFile
 
@@ -54,7 +54,7 @@ class UserService():
                 await self.uow.user_stats.add(stats)
                 await self.uow.commit()
             else:
-                stats = user.stats
+                stats = await self._refresh_streak_status(user.stats)
 
             return UserReturn(
                 id=user.id,
@@ -152,3 +152,15 @@ class UserService():
                 )
                 for course in user_courses
             ]
+        
+    async def _refresh_streak_status(self, stats: Users_Stats) -> Users_Stats:
+        now = datetime.now().date()
+        if not stats.last_activity:
+            return stats
+
+        last_activity_date = stats.last_activity.date()
+        
+        if last_activity_date < now - timedelta(days=1):
+            stats.streak = 0
+    
+        return stats

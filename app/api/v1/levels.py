@@ -98,6 +98,7 @@ async def get_xp(
 @router.post(
     "/{level_id}/complete",
     response_model=LevelCompleteReturn,
+    response_model_exclude_none=True,
     responses={
         404: {"model": ErrorResponse, "description": "Пользователь или уровень не найден/уровень уже завершён"},
         400: {"model": ErrorResponse, "description": "Некорректные данные запроса"}
