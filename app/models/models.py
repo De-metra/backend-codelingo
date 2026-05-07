@@ -37,6 +37,7 @@ class Courses(Base):
     id: Mapped[int_pk]
     title: Mapped[str] = mapped_column(String(50), nullable=False)
     description: Mapped[str_null_true]
+    icon: Mapped[str_null_true]
 
     levels: Mapped[list["Levels"]] = relationship(
         back_populates="course",

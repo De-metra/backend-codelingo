@@ -130,9 +130,9 @@ class UserService():
             user_course = await self.uow.user_course.get_last_active_course(user_id)
 
             if not user_course:
-                return UserCourseResponse(course_id=None, course_title=None) 
+                return UserCourseResponse(course_id=None, course_title=None, course_icon=None) 
             
-            return UserCourseResponse(course_id=user_course.course_id, course_title=user_course.course.title)
+            return UserCourseResponse(course_id=user_course.course_id, course_title=user_course.course.title, course_icon=user_course.course.icon)
         
 
     async def get_user_course_progress(self, user_id: int) -> list[UserCourseProgressReturn]:

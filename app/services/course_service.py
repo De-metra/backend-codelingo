@@ -37,6 +37,7 @@ class CourseService():
                 id=course.id,
                 title=course.title,
                 description=course.description,
+                icon=course.icon,
                 levels=[
                         LevelBase(
                             id=level.id,

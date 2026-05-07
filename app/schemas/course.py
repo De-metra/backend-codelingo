@@ -13,6 +13,7 @@ class CourseReturn(BaseModel):
     id: int 
     title: str
     description: Optional[str] 
+    icon: Optional[str]
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -20,6 +21,7 @@ class CourseReturn(BaseModel):
 class UserCourseResponse(BaseModel):
     course_id: Optional[int] = None
     course_title: Optional[str] = None
+    course_icon: Optional[str] = None   
 
 class UserCourseProgressReturn(BaseModel):
     id: int
