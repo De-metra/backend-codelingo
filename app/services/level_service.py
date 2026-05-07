@@ -106,7 +106,7 @@ class LevelService():
 
             return LevelCompleteReturn(
                 message=f"Урок id:{level_id} завершён",
-                xp_added=level.xp,
+                xp_added=xp_to_add,
                 total_xp=new_stats.total_xp,
                 streak=new_stats.streak, 
                 course_progress=progress_percent,
