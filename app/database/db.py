@@ -12,7 +12,7 @@ DATABASE_URL = get_db_url()
 
 # Главный объект для работы с базой данных - используется во всех запросах
 #database = Database(DATABASE_URL)
-engine = create_async_engine(DATABASE_URL)
+engine = create_async_engine(DATABASE_URL, echo=True, pool_pre_ping=True)
 async_session_maker = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 # настройка аннотаций
