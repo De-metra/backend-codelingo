@@ -23,8 +23,8 @@ router = APIRouter()
     status_code=status.HTTP_302_FOUND,
     description="Перенаправляет пользователя на страницу авторизации Google"    
 )
-async def get_google_auth_redirect_uri():
-   uri = generate_google_oath_redirect_uri()
+async def get_google_auth_redirect_uri(platform: str = "mobile"):
+   uri = generate_google_oath_redirect_uri(platform=platform)
    return RedirectResponse(url=uri, status_code=302)
 
 
@@ -36,11 +36,17 @@ async def get_google_auth_redirect_uri():
 )
 async def handle_code(
     code: str,
+    state: str = "mobile",
     auth_service: AuthService = Depends(get_auth_service)
 ):
     try:
         jwt_token = await auth_service.google_callback(code)
-        return RedirectResponse(url=f"{settings.MOBILE_APP_REDIRECT_URL}?access_token={jwt_token}")
+
+        if state == "mobile":
+            redirect_base_url = settings.MOBILE_APP_REDIRECT_URL
+        else:
+            redirect_base_url = settings.WEB_APP_REDIRECT_URL
+        return RedirectResponse(url=f"{redirect_base_url}?access_token={jwt_token}")   
     except GoogleAuthError:
         raise HTTPException(status_code=400, detail="Ошибка при аутентификации через Google")
     except AppError as err:

@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     RESEND_FROM: str
 
     MOBILE_APP_REDIRECT_URL: str
+    WEB_APP_REDIRECT_URL: str
     
     WANDBOX_URL: str
 
