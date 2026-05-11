@@ -144,13 +144,14 @@ class UserService():
             
             return [
                 UserCourseProgressReturn(
-                    id=course.id,
-                    course_name=course.course.title,
-                    progress=course.progress,
-                    is_complete=course.is_complete,
-                    started_at=course.started_at
+                    id=u_c.id,
+                    course_name=u_c.course.title,
+                    course_icon=u_c.course.icon,
+                    progress=u_c.progress,
+                    is_complete=u_c.is_complete,
+                    started_at=u_c.started_at
                 )
-                for course in user_courses
+                for u_c in user_courses
             ]
         
     async def _refresh_streak_status(self, stats: Users_Stats) -> Users_Stats:

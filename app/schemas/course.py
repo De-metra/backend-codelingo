@@ -26,6 +26,7 @@ class UserCourseResponse(BaseModel):
 class UserCourseProgressReturn(BaseModel):
     id: int
     course_name: str
+    course_icon: Optional[str] = None
     progress: float
     is_complete: bool
     started_at: datetime

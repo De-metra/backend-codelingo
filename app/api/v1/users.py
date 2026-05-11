@@ -121,7 +121,7 @@ async def change_avatar(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
 
 
-@router.delete(
+@router.post(         
     "/delete-me",
     response_model=MessageReturn,
     responses={
