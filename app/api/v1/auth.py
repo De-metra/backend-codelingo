@@ -25,6 +25,7 @@ router = APIRouter()
 )
 async def get_google_auth_redirect_uri(platform: str = "mobile"):
    uri = generate_google_oath_redirect_uri(platform=platform)
+   print(uri)
    return RedirectResponse(url=uri, status_code=302)
 
 
@@ -56,8 +57,7 @@ async def handle_code(
 
 @router.post(
     "/register",
-    response_model=TokenReturn,
-    status_code=status.HTTP_201_CREATED,
+    response_model=MessageReturn,
     responses={
         400: {"model": ErrorResponse, "description": "Некорректные данные запроса"},
         409: {"model": ErrorResponse, "description": "Email уже зарегистрирован"} 
@@ -77,6 +77,26 @@ async def register(
     except AppError as err:
         detail = str(err) or "Bad request"
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
+    
+@router.post(
+    "/verify-email",
+    response_model=TokenReturn,
+    responses={
+        400: {"model": ErrorResponse, "description": "Неверный код"}
+    } 
+)
+async def verify_email(
+    data: CodeRequest, 
+    auth_service: AuthService = Depends(get_auth_service)
+):
+    try:
+        return await auth_service.verify_and_activate(data=data)
+    except InvalidCodeError:
+        raise HTTPException(status_code=400, detail="Неверный код")
+    except AppError as err:
+        detail = str(err) or "Bad request"
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=detail) from err
+
     
    
 @router.post(

@@ -19,6 +19,14 @@ class UserRepository(SQLAlchemyRepository):
         )
         return stmt.scalar_one_or_none()
     
+    async def get_by_email_inactive(self, email: str) -> Optional[Users]:
+        stmt = await self.session.execute(
+            select(Users).where(
+                Users.email == email
+            )
+        )
+        return stmt.scalar_one_or_none()
+    
     async def get_by_id(self, id: int) -> Optional[Users]:
         stmt = await self.session.execute(
             select(Users).where(

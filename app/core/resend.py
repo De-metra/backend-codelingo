@@ -21,3 +21,19 @@ async def send_reset_mail(user_email: str, code: str):
                 Если вы получили это письмо по ошибке, просто проигнорируйте его.
             """
     })
+
+async def send_verify_mail(user_email: str, code: str):
+    resend.Emails.send({
+        "from": f"{settings.RESEND_FROM}",
+        "to": [user_email],
+        "subject": "Codelingo | Подтверждение регистрации",
+        "html": f"""
+                Приветствуем!<br>
+                
+                Чтобы подтвердить регистрацию, введите, пожалуйста, код:<br>
+
+                <h1>{code}</h1>
+
+                Если вы получили это письмо по ошибке, просто проигнорируйте его.
+            """
+    })

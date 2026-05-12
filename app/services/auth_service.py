@@ -9,7 +9,7 @@ from app.schemas.schemas import MessageReturn
 from app.schemas.user import UserRegister, UserLogin
 from app.schemas.email import CodeUpdateRequest, EmailRequest, CodeRequest
 from app.core.config import settings
-from app.core.resend import send_reset_mail
+from app.core.resend import send_reset_mail, send_verify_mail
 from app.utils.uow import IUnitOfWork
 from app.core.exception import (
     UserAlreadyExistsError, UnauthorizedError,
@@ -22,25 +22,43 @@ class AuthService():
         self.uow = uow
 
 
-    async def register(self, user_data: UserRegister) -> TokenReturn: 
+    async def register(self, user_data: UserRegister) -> MessageReturn: 
         async with self.uow:
-            existing_user = await self.uow.user.get_by_email(user_data.email)
-            if existing_user and existing_user.is_active:
-                raise UserAlreadyExistsError()
+            existing_user = await self.uow.user.get_by_email_inactive(user_data.email)
+            if existing_user:
+                if existing_user.is_active:
+                    raise UserAlreadyExistsError()
+                
+                user = existing_user
+                user.username = user_data.username
+                user.hashed_password = get_password_hash(user_data.password)
+            else:
+                user = Users(
+                    username = user_data.username,
+                    email = user_data.email,
+                    hashed_password=get_password_hash(user_data.password),
+                    picture_link=None,
+                    is_active=False,
+                )
+                await self._create_user_with_stats(user)    ##
 
-            new_user = Users(
-                username = user_data.username,
-                email = user_data.email,
-                hashed_password=get_password_hash(user_data.password),
-                picture_link=None
+            code = generate_reset_code()
+
+            await self.uow.reset_code.delete_by_user_id(user.id)
+
+            reset_code = PasswordResetCode(
+                user_id = user.id,
+                code = code,
+                expires_at = datetime.now() + timedelta(minutes=5)
             )
-            await self._create_user_with_stats(new_user)
+            await self.uow.reset_code.add(reset_code) 
+
             await self.uow.commit()
 
-            token = create_jwt_token({"sub": str(new_user.id)}) 
+        await send_verify_mail(user_data.email, code)
 
-            return TokenReturn(access_token=token, token_type="bearer")
-        
+        return MessageReturn(message="Сообщение с кодом отправлено на вашу почту!")
+
 
     async def login(self, user_data: UserLogin) -> TokenReturn:
         async with self.uow:
@@ -95,6 +113,28 @@ class AuthService():
                 raise InvalidCodeError()
             
             return MessageReturn(message="Код подтвержден")
+        
+    async def verify_and_activate(self, data: CodeRequest) -> TokenReturn:
+        async with self.uow:
+            user = await self.uow.user.get_by_email_inactive(data.email)
+
+            if not user:
+                raise InvalidCodeError()
+            
+            reset_token = await self.uow.reset_code.get_valid_code(user.id, data.code)
+
+            if not reset_token:
+                raise InvalidCodeError()
+            
+            user.is_active = True
+
+            await self.uow.reset_code.delete(id=reset_token.id)
+
+            await self.uow.commit()
+
+            token = create_jwt_token({"sub": str(user.id)})
+
+            return TokenReturn(access_token=token, token_type="bearer")
 
 
     async def reset_password(self, data: CodeUpdateRequest) -> MessageReturn:     

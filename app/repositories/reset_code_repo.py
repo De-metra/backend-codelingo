@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import select, and_
+from sqlalchemy import delete, select, and_
 
 from app.repositories.base import SQLAlchemyRepository
 from app.models.models import PasswordResetCode
@@ -37,3 +37,9 @@ class ResetCodeRepository(SQLAlchemyRepository):
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
+    
+    async def delete_by_user_id(self, user_id: int):
+        stmt = delete(PasswordResetCode).where(
+        PasswordResetCode.user_id == user_id
+    )
+        await self.session.execute(stmt)
